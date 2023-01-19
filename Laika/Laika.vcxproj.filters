@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Init">
+      <UniqueIdentifier>{e821bc06-aaf9-438e-91a3-8a3220e3c3f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs">
+      <UniqueIdentifier>{9e95c751-2cb6-4c1e-9f06-96b14532a979}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.c">
+      <Filter>Init</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.c">
+      <Filter>Libs</Filter>
+    </ClCompile>
+    <ClCompile Include="resolve_apis.c">
+      <Filter>Libs</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="utils.h">
+      <Filter>Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="resolve_apis.h">
+      <Filter>Libs</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
