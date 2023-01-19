@@ -24,4 +24,12 @@
 * Fait en Python
 * Tout beau
 
+<details open>
+<summary>TODO</summary>
+
+* Build l'agent en spécifiant la config
+* Ajouter un crypteur/dropper
+</details>
+
+
 ![Alt text](Screenshots/Server.PNG "Screenshot du server")
