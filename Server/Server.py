@@ -54,16 +54,19 @@ def on_new_client() -> None :
 
 def on_close_socket() -> None:
     global CONNECT_CLIENTS
+    global SELECTED_CLIENT
     while True :
         for s in CONNECT_CLIENTS :
             try:
                 # this will try to read bytes without blocking and also without removing them from buffer (peek only)
                 data = s.recv(16, socket.MSG_PEEK)
                 if len(data) == 0:
+                    if CONNECT_CLIENTS.index(s) == SELECTED_CLIENT : SELECTED_CLIENT = -1
                     CONNECT_CLIENTS.remove(s)
             except BlockingIOError:
                 pass  # socket is open and reading from it would block
             except ConnectionResetError:
+                if CONNECT_CLIENTS.index(s) == SELECTED_CLIENT : SELECTED_CLIENT = -1
                 CONNECT_CLIENTS.remove(s)  # socket was closed for some other reason
             except Exception as e:
                 pass

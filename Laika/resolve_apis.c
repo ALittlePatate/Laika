@@ -45,6 +45,7 @@ void InitApis() {
 	if (!hMsvcrt) {
 		return;
 	}
+
 	Api.memset = (Tmemset)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("rjrxjy"));
 	Api.malloc = (Tmalloc)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("rfqqth"));
 	Api.free = (Tfree)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("kwjj"));
