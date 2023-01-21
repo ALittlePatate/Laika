@@ -22,6 +22,7 @@
 # Server
 
 * Fait en Python
+* Permet de build le client/faire la config
 * Tout beau
 
 <details open>

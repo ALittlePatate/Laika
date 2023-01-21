@@ -158,6 +158,7 @@
     <ClCompile Include="utils.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="config.h" />
     <ClInclude Include="resolve_apis.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>

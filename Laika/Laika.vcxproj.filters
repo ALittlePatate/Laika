@@ -7,6 +7,9 @@
     <Filter Include="Libs">
       <UniqueIdentifier>{9e95c751-2cb6-4c1e-9f06-96b14532a979}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Config">
+      <UniqueIdentifier>{21b436ca-1cf6-4e3b-b4af-31279e56caf5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -25,6 +28,9 @@
     </ClInclude>
     <ClInclude Include="resolve_apis.h">
       <Filter>Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>Config</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
