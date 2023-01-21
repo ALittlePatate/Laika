@@ -168,18 +168,10 @@ retry:
 	//keep communicating with server
 	while (1)
 	{
-		//Send some data
-		/*
-		if (Api.send(sock, "Wjfi~3\xf", strlen("Wjfi~3\xf"), 0) < 0) //Ready.\n
-		{
-			//send failed
-			Sleep_(Sleep_TIME);
-			goto retry;
-		}
-		*/
+		Api.memset(server_reply, 0, BUFFER_SIZE);
 
 		//Receive a reply from the server
-		if (Api.recv(sock, server_reply, BUFFER_SIZE, 0) < 0) //access violation
+		if (Api.recv(sock, server_reply, BUFFER_SIZE, 0) <= 0)
 		{
 			//recv failed
 			Sleep_(Sleep_TIME);
