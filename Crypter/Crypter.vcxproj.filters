@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Init">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Random">
+      <UniqueIdentifier>{e73ec28b-18e4-4f85-9c24-b1e26d972336}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{00c90023-42b3-4b1a-9d61-c363b4660686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Config">
+      <UniqueIdentifier>{47733102-deb7-437d-ada8-bca851a43356}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Imports">
+      <UniqueIdentifier>{ecae1be1-6edb-45a9-bf23-273b5e5bf6f3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Init</Filter>
+    </ClCompile>
+    <ClCompile Include="random.cpp">
+      <Filter>Random</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="random.hpp">
+      <Filter>Random</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="config.hpp">
+      <Filter>Config</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -28,9 +28,20 @@
 <details open>
 <summary>TODO</summary>
 
-* Build l'agent en spécifiant la config
 * Ajouter un crypteur/dropper
 </details>
 
 
 ![Alt text](Screenshots/Server.PNG "Screenshot du server")
+
+# Crypter
+
+En WIP.
+
+<details open>
+<summary>TODO</summary>
+
+* Ajouter du code mutation
+* Control flow flattening
+* Anti-disassembly
+</details>
