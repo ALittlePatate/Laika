@@ -4,7 +4,7 @@
 
 * Petit (7ko)
 * Fait en C, sans CRT
-* x86bit
+* x32 bit
 * Modulaire (peut se déployer via shellcode/dll/pe injection/.exe)
 * Trafic chiffré
 * API resolve de manière dynamique
