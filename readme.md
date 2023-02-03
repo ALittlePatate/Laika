@@ -29,6 +29,7 @@
 <summary>TODO</summary>
 
 * Ajouter un crypteur/dropper
+* Fix l'input qui bloque l'arrivée de données (reproductible avec une session powershell)
 </details>
 
 
