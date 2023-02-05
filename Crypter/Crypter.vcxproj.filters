@@ -14,9 +14,6 @@
     <Filter Include="Config">
       <UniqueIdentifier>{47733102-deb7-437d-ada8-bca851a43356}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Imports">
-      <UniqueIdentifier>{ecae1be1-6edb-45a9-bf23-273b5e5bf6f3}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

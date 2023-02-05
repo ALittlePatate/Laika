@@ -8,13 +8,12 @@
 #include <inttypes.h>
 
 #include <Zydis/Zydis.h>
-#include <Zydis/SharedTypes.h>
-#include <Zydis/Decoder.h>
+#include <Zycore/LibC.h>
+#include <Zycore/API/Memory.h>
 
 #include "random.hpp"
 #include "utils.hpp"
 #include "config.hpp"
-
 
 extern g_random random;
 
@@ -165,10 +164,11 @@ int main(int argc, char* argv[]) {
     }
 
     printf("\n");
+    printf(" Enumerating .text instructions and finding the stuff to change...\n");
 
     // Initialize decoder context
     ZydisDecoder decoder;
-    ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LEGACY_32, ZYDIS_ADDRESS_WIDTH_32);
+    ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LEGACY_32, ZYDIS_STACK_WIDTH_32);
 
     // Initialize formatter. Only required when you actually plan to do instruction
     // formatting ("disassembling"), like we do here
@@ -182,17 +182,57 @@ int main(int argc, char* argv[]) {
     ZyanUSize offset = text_addr;
     const ZyanUSize length = sizeof((char*)mapped_file);
     ZydisDecodedInstruction instruction;
+    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
 
-    while (ZYAN_SUCCESS(ZydisDecoderDecodeBuffer(&decoder, (char*)mapped_file + offset, length - offset,
-        &instruction)) && offset < text_size + text_addr)
+    while (ZYAN_SUCCESS(ZydisDecoderDecodeFull(&decoder, (char*)mapped_file + offset, length - offset,
+        &instruction, operands)) && offset < text_size + text_addr)
     {
         // Print current instruction pointer.
         printf(" %016" PRIX64 "  ", runtime_address);
 
         // Format & print the binary instruction structure to human-readable format
         char buffer[256];
-        ZydisFormatterFormatInstruction(&formatter, &instruction, buffer, sizeof(buffer), runtime_address);
+        ZydisFormatterFormatInstruction(&formatter, &instruction, operands, instruction.operand_count_visible, buffer, sizeof(buffer), runtime_address, ZYAN_NULL);
         puts(buffer);
+
+        // Create an encoder request from the previously decoded instruction.
+        ZydisEncoderRequest enc_req;
+        ZydisEncoderDecodedInstructionToEncoderRequest(&instruction, operands,
+            instruction.operand_count_visible, &enc_req);
+
+        // Now, change some things about the instruction!
+
+        // Change `jz` -> `jnz` and `add` -> `sub`.
+        bool changed = true;
+        switch (enc_req.mnemonic)
+        {
+        case ZYDIS_MNEMONIC_ADD:
+            enc_req.mnemonic = ZYDIS_MNEMONIC_SUB;
+            break;
+        case ZYDIS_MNEMONIC_JZ:
+            enc_req.mnemonic = ZYDIS_MNEMONIC_JNZ;
+            break;
+        default:
+            // Don't change other instructions.
+            changed = false;
+            break;
+        }
+
+        if (changed) {
+            printf(" Instruction %s changed\n", buffer);
+        }
+
+        // Encode the instruction back to raw bytes.
+        uint8_t new_bytes[ZYDIS_MAX_INSTRUCTION_LENGTH];
+        ZyanUSize new_instr_length = sizeof(new_bytes);
+        ZydisEncoderEncodeInstruction(&enc_req, new_bytes, &new_instr_length);
+
+        // Decode and print the new instruction. We re-use the old buffers.
+        ZydisDecoderDecodeFull(&decoder, new_bytes, new_instr_length, &instruction,
+            operands);
+        ZydisFormatterFormatInstruction(&formatter, &instruction, operands,
+            instruction.operand_count_visible, buffer, sizeof(buffer), 0, NULL);
+        printf(" New instruction:      %s\n", buffer);
 
         offset += instruction.length;
         runtime_address += instruction.length;
