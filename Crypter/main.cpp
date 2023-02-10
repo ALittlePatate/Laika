@@ -7,9 +7,8 @@
 #include <filesystem>
 #include <inttypes.h>
 
-#include <Zydis/Zydis.h>
-#include <Zycore/LibC.h>
-#include <Zycore/API/Memory.h>
+#define ZYDIS_STATIC_BUILD
+#include <Zydis.h>
 
 #include "random.hpp"
 #include "utils.hpp"
@@ -220,19 +219,18 @@ int main(int argc, char* argv[]) {
 
         if (changed) {
             printf(" Instruction %s changed\n", buffer);
+            // Encode the instruction back to raw bytes.
+            uint8_t new_bytes[ZYDIS_MAX_INSTRUCTION_LENGTH];
+            ZyanUSize new_instr_length = sizeof(new_bytes);
+            ZydisEncoderEncodeInstruction(&enc_req, new_bytes, &new_instr_length);
+
+            // Decode and print the new instruction. We re-use the old buffers.
+            ZydisDecoderDecodeFull(&decoder, new_bytes, new_instr_length, &instruction,
+                operands);
+            ZydisFormatterFormatInstruction(&formatter, &instruction, operands,
+                instruction.operand_count_visible, buffer, sizeof(buffer), 0, NULL);
+            printf(" New instruction: %s\n", buffer);
         }
-
-        // Encode the instruction back to raw bytes.
-        uint8_t new_bytes[ZYDIS_MAX_INSTRUCTION_LENGTH];
-        ZyanUSize new_instr_length = sizeof(new_bytes);
-        ZydisEncoderEncodeInstruction(&enc_req, new_bytes, &new_instr_length);
-
-        // Decode and print the new instruction. We re-use the old buffers.
-        ZydisDecoderDecodeFull(&decoder, new_bytes, new_instr_length, &instruction,
-            operands);
-        ZydisFormatterFormatInstruction(&formatter, &instruction, operands,
-            instruction.operand_count_visible, buffer, sizeof(buffer), 0, NULL);
-        printf(" New instruction:      %s\n", buffer);
 
         offset += instruction.length;
         runtime_address += instruction.length;
