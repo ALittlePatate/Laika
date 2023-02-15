@@ -21,6 +21,7 @@ typedef void* (WINAPI* Tmalloc)(size_t);
 typedef void(WINAPI* Tfree)(void*);
 typedef int(WINAPI* Tstrncmp)(const char*, const char*, size_t);
 typedef size_t(WINAPI* Tmbstowcs)(wchar_t*, const char*, size_t);
+typedef char*(WINAPI* Tstrcpy)(char*, const char*);
 
 typedef BOOL(WINAPI* TReadFile)(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED);
 typedef BOOL(WINAPI* TWriteFile)(HANDLE, LPCVOID, DWORD, LPDWORD, LPOVERLAPPED);
@@ -67,6 +68,7 @@ typedef struct ApiList {
 	TGetProcAddress GetProcAddress;
 
 	Tmbstowcs mbstowcs;
+	Tstrcpy strcpy;
 } API;
 
 void InitApis();

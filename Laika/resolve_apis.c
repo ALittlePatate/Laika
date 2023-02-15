@@ -13,6 +13,18 @@ void InitApis() {
 	}
 
 	Api.GetProcAddress = (TGetProcAddress)GetProcAddress(hKernel32, CAESAR_DECRYPT("LjyUwthFiiwjxx"));
+
+	hMsvcrt = LoadLibraryA(CAESAR_DECRYPT("rx{hwy3iqq"));
+	if (!hMsvcrt) {
+		return;
+	}
+	Api.strcpy = (Tstrcpy)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("xywhu~"));
+	Api.malloc = (Tmalloc)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("rfqqth"));
+	Api.free = (Tfree)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("kwjj"));
+	Api.strncmp = (Tstrncmp)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("xywshru"));
+	Api.mbstowcs = (Tmbstowcs)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("rgxyt|hx"));
+	Api.memset = (Tmemset)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("rjrxjy"));
+
 	Api.ReadFile = (TReadFile)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("WjfiKnqj"));
 	Api.WriteFile = (TWriteFile)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("\\wnyjKnqj"));
 	Api.CloseHandle = (TCloseHandle)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("HqtxjMfsiqj"));
@@ -40,17 +52,6 @@ void InitApis() {
 	Api.inet_addr = (Tinet_addr)Api.GetProcAddress(hWininet, CAESAR_DECRYPT("nsjydfiiw"));
 	Api.WSAStartup = (TWSAStartup)Api.GetProcAddress(hWininet, CAESAR_DECRYPT("\\XFXyfwyzu"));
 	Api.WSAGetLastError = (TWSAGetLastError)Api.GetProcAddress(hWininet, CAESAR_DECRYPT("\\XFLjyQfxyJwwtw"));
-
-	hMsvcrt = LoadLibraryA(CAESAR_DECRYPT("rx{hwy3iqq"));
-	if (!hMsvcrt) {
-		return;
-	}
-
-	Api.memset = (Tmemset)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("rjrxjy"));
-	Api.malloc = (Tmalloc)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("rfqqth"));
-	Api.free = (Tfree)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("kwjj"));
-	Api.strncmp = (Tstrncmp)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("xywshru"));
-	Api.mbstowcs = (Tmbstowcs)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("rgxyt|hx"));
 }
 
 void FreeApis() {

