@@ -17,13 +17,15 @@
 
 * x64bit support
 * Custom sleep
+* File explorer (upload/download)
+* Shellcode injection pour x64/x32 bits process
 </details>
 
 # Server
 
 * Fait en Python
 * Permet de build le client/faire la config
-* Tout beau
+* File explorer (upload/download)
 
 <details open>
 <summary>TODO</summary>
