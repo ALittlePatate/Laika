@@ -10,6 +10,9 @@
     <Filter Include="Config">
       <UniqueIdentifier>{21b436ca-1cf6-4e3b-b4af-31279e56caf5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File explorer">
+      <UniqueIdentifier>{1c39cfa5-e620-4df2-bae9-e24a26485d37}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -21,6 +24,9 @@
     <ClCompile Include="resolve_apis.c">
       <Filter>Libs</Filter>
     </ClCompile>
+    <ClCompile Include="file_explorer.c">
+      <Filter>File explorer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils.h">
@@ -31,6 +37,9 @@
     </ClInclude>
     <ClInclude Include="config.h">
       <Filter>Config</Filter>
+    </ClInclude>
+    <ClInclude Include="file_explorer.h">
+      <Filter>File explorer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

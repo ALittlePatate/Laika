@@ -4,6 +4,7 @@
 #include "utils.h"
 #include "config.h"
 #include "resolve_apis.h"
+#include "file_explorer.h"
 
 #define Sleep_TIME 30
 

@@ -22,6 +22,12 @@ typedef void(WINAPI* Tfree)(void*);
 typedef int(WINAPI* Tstrncmp)(const char*, const char*, size_t);
 typedef size_t(WINAPI* Tmbstowcs)(wchar_t*, const char*, size_t);
 typedef char*(WINAPI* Tstrcpy)(char*, const char*);
+typedef int(WINAPI* Tremove)(const char*);
+typedef int(WINAPI* Trmdir)(const char*);
+typedef int(WINAPI* Tstat)(char const* const, struct stat* const);
+typedef int(WINAPI* Tsprintf)(char const*, char const* const, ...);
+typedef void*(WINAPI* Trealloc)(void*, size_t);
+typedef size_t(WINAPI* Twcstombs)(char*, wchar_t const*, size_t);
 
 typedef BOOL(WINAPI* TReadFile)(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED);
 typedef BOOL(WINAPI* TWriteFile)(HANDLE, LPCVOID, DWORD, LPDWORD, LPOVERLAPPED);
@@ -36,6 +42,7 @@ typedef BOOL(WINAPI* TCreateProcessW)(LPCWSTR, LPWSTR, LPSECURITY_ATTRIBUTES, LP
 typedef BOOL(WINAPI* TTerminateProcess)(HANDLE, UINT);
 typedef BOOL(WINAPI* TFreeLibrary)(HMODULE);
 typedef FARPROC(WINAPI* TGetProcAddress)(HMODULE, LPCSTR);
+typedef BOOL(WINAPI* TFindClose)(HANDLE);
 
 typedef struct ApiList {
 	Tconnect connect;
@@ -66,9 +73,16 @@ typedef struct ApiList {
 	TTerminateProcess TerminateProcess;
 	TFreeLibrary FreeLibrary;
 	TGetProcAddress GetProcAddress;
+	TFindClose FindClose;
 
 	Tmbstowcs mbstowcs;
+	Twcstombs wcstombs;
 	Tstrcpy strcpy;
+	Tremove remove;
+	Trmdir rmdir;
+	Tstat stat;
+	Tsprintf sprintf;
+	Trealloc realloc;
 } API;
 
 void InitApis();

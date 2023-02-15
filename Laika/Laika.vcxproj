@@ -153,12 +153,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="file_explorer.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="resolve_apis.c" />
     <ClCompile Include="utils.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h" />
+    <ClInclude Include="file_explorer.h" />
     <ClInclude Include="resolve_apis.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
