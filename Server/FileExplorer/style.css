@@ -1,0 +1,95 @@
+#spike {
+    float: left;
+    border-style:solid;
+	border-color:#0004ff;
+	border-width: 1px;
+    width: 8%;
+    height: auto;
+}
+
+/* unvisited link */
+a:link {
+    color: #FFFFFF;
+}
+  
+/* visited link */
+a:visited {
+    color: #FFFFFF;
+}
+
+/* mouse over link */
+a:hover {
+    color: #5660f1;
+}
+
+/* selected link */
+a:active {
+    color: #686bff;
+}
+
+.header {
+    width: auto;
+    height: auto;
+    overflow:auto;
+    background-color: rgba(18,24,217,0.5);
+	top: 0;
+	left:0px;
+	right:0px;
+}
+
+.menu  {
+    font-weight: bold;
+    float: left;
+    margin-top: 5.2%;
+    margin-left: 0.5%;
+}
+
+body {
+    background: url(../images/bg.gif) repeat 0 0;
+    color: white;
+}
+
+p {
+    font-size: large;
+    margin-left: 3px;
+    margin-bottom: -5px;
+}
+
+a {
+    overflow: hidden;
+    font-size: 150%;
+}
+
+#titre {
+    position: relative;
+    left: 75%;
+    top: -20px;
+    margin-top: -7%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+th {
+  text-align: center;
+}
+
+td:nth-child(1) { /* targets the first column */
+    cursor: pointer;
+    margin-left: 20%;
+}
+
+td:nth-child(1):hover {
+    color: #5660f1;
+}
+
+td:nth-child(2) { /* targets the second column */
+  text-align: center;
+}
+
+td:nth-child(3) { /* targets the third column */
+  text-align: right;
+}

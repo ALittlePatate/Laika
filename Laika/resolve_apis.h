@@ -28,6 +28,9 @@ typedef int(WINAPI* Tstat)(char const* const, struct stat* const);
 typedef int(WINAPI* Tsprintf)(char const*, char const* const, ...);
 typedef void*(WINAPI* Trealloc)(void*, size_t);
 typedef size_t(WINAPI* Twcstombs)(char*, wchar_t const*, size_t);
+typedef struct tm* (WINAPI* T_localtime64)(__time64_t const*);
+typedef size_t(WINAPI* Tstrftime)(char*, size_t, char const*, struct tm const*);
+typedef int(WINAPI* T_snprintf)(char* const, size_t const, char const* const, ...);
 
 typedef BOOL(WINAPI* TReadFile)(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED);
 typedef BOOL(WINAPI* TWriteFile)(HANDLE, LPCVOID, DWORD, LPDWORD, LPOVERLAPPED);
@@ -43,6 +46,7 @@ typedef BOOL(WINAPI* TTerminateProcess)(HANDLE, UINT);
 typedef BOOL(WINAPI* TFreeLibrary)(HMODULE);
 typedef FARPROC(WINAPI* TGetProcAddress)(HMODULE, LPCSTR);
 typedef BOOL(WINAPI* TFindClose)(HANDLE);
+typedef DWORD(WINAPI* TGetLogicalDrives)(VOID);
 
 typedef struct ApiList {
 	Tconnect connect;
@@ -74,6 +78,7 @@ typedef struct ApiList {
 	TFreeLibrary FreeLibrary;
 	TGetProcAddress GetProcAddress;
 	TFindClose FindClose;
+	TGetLogicalDrives GetLogicalDrives;
 
 	Tmbstowcs mbstowcs;
 	Twcstombs wcstombs;
@@ -83,6 +88,9 @@ typedef struct ApiList {
 	Tstat stat;
 	Tsprintf sprintf;
 	Trealloc realloc;
+	T_localtime64 _localtime64;
+	Tstrftime strftime;
+	T_snprintf _snprintf;
 } API;
 
 void InitApis();

