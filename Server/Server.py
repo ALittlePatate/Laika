@@ -43,18 +43,21 @@ def CAESAR_DECRYPT(in_s: str) -> str :
     return r
 
 def convert_size(size_bytes):
-   if size_bytes == 0:
-       return "0 O"
-   size_name = ("O", "Ko", "Mo", "Go", "To", "Po", "Eo", "Zo", "Yo")
-   i = int(math.floor(math.log(size_bytes, 1024)))
-   p = math.pow(1024, i)
-   s = round(size_bytes / p, 2)
-   return "%s %s" % (s, size_name[i])
+    if size_bytes == 0:
+        return "0 O"
+    size_name = ("O", "Ko", "Mo", "Go", "To", "Po", "Eo", "Zo", "Yo")
+    try :
+        i = int(math.floor(math.log(size_bytes, 1024)))
+    except : 
+        return "N"
+    p = math.pow(1024, i)
+    s = round(size_bytes / p, 2)
+    return "%s %s" % (s, size_name[i])
 
 app = Flask(__name__) 
 # Disable Flask's default logging
-#log = logging.getLogger('werkzeug')
-#log.disabled = True
+log = logging.getLogger('werkzeug')
+log.disabled = True
 
 @app.route('/<path:filename>')
 def serve_file(filename):
@@ -66,10 +69,12 @@ def index() :
     index_path = os.path.join(os.getcwd(), 'FileExplorer/index.html')
     return send_file(index_path)
 
+FILES_=[]
 path_file_ex = ""
 @app.route('/get_data', methods=['POST'])
 def get_data() :
     global path_file_ex
+    global FILES_
     data = []
     
     got_path = request.get_data().decode("latin-1")
@@ -93,8 +98,6 @@ def get_data() :
         path_file_ex = ""
 
     i = -1
-    print(path_file_ex.split("/"))
-
     if CONNECT_CLIENTS != [] :
         data.append({"url" : f"<a>..</a>", "modified":"", "size" : ""})
 
@@ -121,11 +124,18 @@ def get_data() :
             client_num = int(path_parts.pop(0).replace("Client n°",""))
             if client_num != i : continue
             path_parts[0] = path_parts[0] + ":"
+            
+            if path_parts[len(path_parts)-2] in FILES_ :
+                path_parts.pop(len(path_parts)-2)
+                path_file_ex_parts = path_file_ex.split("/")
+                path_file_ex_parts.pop(len(path_file_ex_parts)-2)
+                path_file_ex = '/'.join(path_file_ex_parts)
 
             path_file_ex_2 = '/'.join(path_parts)
             client.send(CAESAR(path_file_ex_2 + "\0").encode())
-            
+           
             files = recv_message_ret(client).decode("latin-1")
+            FILES_ = []
             for f in files.split("/") :
                 f = CAESAR_DECRYPT(f)
                 #print(path_file_ex + f)
@@ -142,6 +152,8 @@ def get_data() :
                     taille = convert_size(int(taille))
                     if taille == "0 O" :
                         is_dir = True
+                    else :
+                        FILES_.append(f)
                 
                 if is_dir :
                     data.append({"url": f"<img src=\"images/folder.png\" alt=\"Folder Icon\" class=\"mr-3\" id=\"folder\" /><a class=\"centered\">{f}</a>",

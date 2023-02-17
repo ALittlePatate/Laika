@@ -28,6 +28,7 @@
         data-show-pagination-switch="false">
         <thead>
           <tr>
+            <th data-sortable="false" data-width="20" data-checkbox="true"></th>
             <th data-sortable="true">Nom</th>
             <th data-sortable="false" data-width="150">Modifié le</th>
             <th data-sortable="true" data-width="50">Taille</th>
@@ -38,62 +39,107 @@
     <script>
         $(document).ready(function() {
 			var table = $('#explorer').DataTable({
-				"bPaginate": false,
-				"bLengthChange": false,
-				"bFilter": false,
-				"bInfo": false,
-				"bAutoWidth": false,
-				"ajax": {
-				  "url": "/get_data",
-				  "type": "POST",
-				  "contentType": "application/json",
-				  "data": function(d) {
-					return JSON.stringify(d);
+			  "bPaginate": false,
+			  "bLengthChange": false,
+			  "bFilter": false,
+			  "bInfo": false,
+			  "bAutoWidth": false,
+			  "ajax": {
+				"url": "/get_data",
+				"type": "POST",
+				"contentType": "application/json",
+				"data": function(d) {
+				  return JSON.stringify(d);
+				},
+				"dataSrc": function(json) {
+				  return json.data;
+				}
+			  },
+			  "columns": [
+				{
+				  "data": null,
+				  "render": function(data, type, full, meta) {
+					if (data.url.includes("img")) {
+					  return '<input type="checkbox" name="checkbox[]" class="checkbox_style" value="false">';
+					} else {
+					  return '';
+					}
 				  },
-				  "dataSrc": function(json) {
-					return json.data;
+				  "createdCell": function(cell, cellData, rowData, rowIndex, colIndex) {
+					if (colIndex === 0) { // Only add the click event listener to the checkbox cell
+					  $(cell).find('input[type="checkbox"]').on('click', function(event) {
+						event.stopPropagation();
+					  });
+					}
 				  }
 				},
-				"columns": [
-                {
-                    "data": null,
-                    "render": function(data, type, row) {
-                        if (data.url == "<a>..</a>") {
-                            //data.url = "<a>a</a>";
-                        }
-                        return data.url;
-                    }
-                },
-				  { "data": "modified" },
-				  { "data": "size" }
-				],
-                "createdRow": function(row, data, dataIndex) {
-                    $(row).addClass('d-flex align-items-center');
-                }
-			  });
-			// add click event listener to table rows
-			$('#explorer tbody').on('click', 'tr', function() {
-				// fetch data from the server and update the table
-                // Get the clicked element's text
-                var clickedText = $('#explorer').DataTable().cell(this, 0).data().url;
-
-				// Send an AJAX request to the Flask app to retrieve the updated data
-				$.ajax({
-				  type: 'POST',
-				  url: '/get_data',
-				  contentType : "text/plain",
-				  data: {folder_path: clickedText},
-				  success: function(data) {
-					// Update the data table with the new data
-					$('#explorer').DataTable().clear();
-					$('#explorer').DataTable().rows.add(data.data);
-					$('#explorer').DataTable().draw();
-				  },
-				  error: function(xhr, status, error) {
-					console.error('Error retrieving data: ' + error);
+				{
+				  "data": "url",
+				  "render": function(data, type, full, meta) {
+					return '<i class="fas fa-folder mr-3"></i>' + data;
 				  }
+				},
+				{ "data": "modified" },
+				{ "data": "size" }
+			  ],
+                "order": [[ 1, "asc" ]], //column indexes is zero based
+			  "createdRow": function(row, data, dataIndex) {
+				$(row).addClass('d-flex align-items-center');
+			  }
 			});
-		  });
+			
+			// Add the checkbox in the top left corner of the table
+			var th = $('#explorer').find('thead th').eq(0);
+			th.html('<input type="checkbox" id="select-all-checkbox" class="sorting_disabled checkbox_style" value="false">');
+
+			// Add click event listener to select all checkbox
+			$('#select-all-checkbox').on('click', function() {
+			  $('input[type="checkbox"]').prop('checked', $(this).prop('checked'));
+
+			  // Show/hide the buttons based on the number of checked checkboxes
+			  if ($('input[type="checkbox"]:checked').length > 0) {
+				$('#delete-button, #download-button, #upload-button').show();
+			  } else {
+				$('#delete-button, #download-button, #upload-button').hide();
+			  }
+			});
+
+			// Add click event listener to table rows
+			$('#explorer tbody').on('click', 'tr', function() {
+			  // fetch data from the server and update the table
+			  // Get the clicked element's text
+			  var clickedText = $('#explorer').DataTable().cell(this, 0).data().url;
+
+			  // Send an AJAX request to the Flask app to retrieve the updated data
+			  $.ajax({
+				type: 'POST',
+				url: '/get_data',
+				contentType : "text/plain",
+				data: {folder_path: clickedText},
+				success: function(data) {
+				  // Update the data table with the new data
+				  $('#explorer').DataTable().clear();
+				  $('#explorer').DataTable().rows.add(data.data);
+				  $('#explorer').DataTable().draw();
+				},
+				error: function(xhr, status, error) {
+				  console.error('Error retrieving data: ' + error);
+				}
+			  });
+			});
+	
+            // Add event listener to checkbox inputs
+          $('#explorer tbody').on('change', 'input[type="checkbox"]', function() {
+            // Get the number of checked checkboxes
+            var numChecked = $('input[type="checkbox"]:checked').length;
+
+            // Show/hide the buttons based on the number of checked checkboxes
+            if (numChecked > 0) {
+              $('#delete-button, #download-button, #upload-button').show();
+            } else {
+              $('#delete-button, #download-button, #upload-button').hide();
+            }
+          });
         });
     </script>
 </body>

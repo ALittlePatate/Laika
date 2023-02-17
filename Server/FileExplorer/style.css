@@ -77,20 +77,20 @@ th {
   text-align: center;
 }
 
-td:nth-child(1) { /* targets the first column */
-    cursor: pointer;
+td:nth-child(2) { /* targets the first column */
     margin-left: 20%;
+    cursor: default;
 }
 
-td:nth-child(1):hover {
+td:nth-child(2):hover {
     color: #5660f1;
 }
 
-td:nth-child(2) { /* targets the second column */
+td:nth-child(3) { /* targets the second column */
   text-align: center;
 }
 
-td:nth-child(3) { /* targets the third column */
+td:nth-child(4) { /* targets the third column */
   text-align: right;
 }
 
@@ -102,4 +102,8 @@ td:nth-child(3) { /* targets the third column */
 .centered {
     position: relative;
     top: -7px;
+}
+
+.checkbox_style {
+   transform: scale(1.5); 
 }
