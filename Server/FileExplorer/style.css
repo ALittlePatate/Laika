@@ -93,3 +93,13 @@ td:nth-child(2) { /* targets the second column */
 td:nth-child(3) { /* targets the third column */
   text-align: right;
 }
+
+#folder {
+    width: 2%;
+    height: auto;
+}
+
+.centered {
+    position: relative;
+    top: -7px;
+}

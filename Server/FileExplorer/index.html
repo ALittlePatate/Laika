@@ -55,16 +55,27 @@
 				  }
 				},
 				"columns": [
-				  { "data": "url" },
+                {
+                    "data": null,
+                    "render": function(data, type, row) {
+                        if (data.url == "<a>..</a>") {
+                            //data.url = "<a>a</a>";
+                        }
+                        return data.url;
+                    }
+                },
 				  { "data": "modified" },
 				  { "data": "size" }
-				]
+				],
+                "createdRow": function(row, data, dataIndex) {
+                    $(row).addClass('d-flex align-items-center');
+                }
 			  });
 			// add click event listener to table rows
 			$('#explorer tbody').on('click', 'tr', function() {
 				// fetch data from the server and update the table
                 // Get the clicked element's text
-                var clickedText = $('#explorer').DataTable().cell(this, 0).data();
+                var clickedText = $('#explorer').DataTable().cell(this, 0).data().url;
 
 				// Send an AJAX request to the Flask app to retrieve the updated data
 				$.ajax({

