@@ -44,7 +44,7 @@ void InitApis() {
 	Api.sprintf = (Tsprintf)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("xuwnsyk"));
 	Api.realloc = (Trealloc)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("wjfqqth"));
 	Api.wcstombs = (Twcstombs)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("|hxytrgx"));
-	Api._localtime64 = (T_localtime64)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("dqthfqynrj;9"));
+	Api.localtime = (Tlocaltime)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("qthfqynrj"));
 	Api.strftime = (Tstrftime)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("xywkynrj"));
 	Api._snprintf = (T_snprintf)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("dxsuwnsyk"));
 

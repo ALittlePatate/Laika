@@ -28,7 +28,7 @@ typedef int(WINAPI* Tstat)(char const* const, struct stat* const);
 typedef int(WINAPI* Tsprintf)(char const*, char const* const, ...);
 typedef void*(WINAPI* Trealloc)(void*, size_t);
 typedef size_t(WINAPI* Twcstombs)(char*, wchar_t const*, size_t);
-typedef struct tm* (WINAPI* T_localtime64)(__time64_t const*);
+typedef struct tm* (WINAPI* Tlocaltime)(__time64_t const*);
 typedef size_t(WINAPI* Tstrftime)(char*, size_t, char const*, struct tm const*);
 typedef int(WINAPI* T_snprintf)(char* const, size_t const, char const* const, ...);
 
@@ -88,7 +88,7 @@ typedef struct ApiList {
 	Tstat stat;
 	Tsprintf sprintf;
 	Trealloc realloc;
-	T_localtime64 _localtime64;
+	Tlocaltime localtime;
 	Tstrftime strftime;
 	T_snprintf _snprintf;
 } API;

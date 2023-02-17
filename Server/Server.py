@@ -8,6 +8,7 @@ import select
 import socket
 import logging
 import urllib.parse
+import math
 
 ADRESSE = "192.168.1.35"#socket.gethostname()
 PORT = 4444 
@@ -40,6 +41,15 @@ def CAESAR_DECRYPT(in_s: str) -> str :
         except :
             r+=" "
     return r
+
+def convert_size(size_bytes):
+   if size_bytes == 0:
+       return "0 O"
+   size_name = ("O", "Ko", "Mo", "Go", "To", "Po", "Eo", "Zo", "Yo")
+   i = int(math.floor(math.log(size_bytes, 1024)))
+   p = math.pow(1024, i)
+   s = round(size_bytes / p, 2)
+   return "%s %s" % (s, size_name[i])
 
 app = Flask(__name__) 
 # Disable Flask's default logging
@@ -77,6 +87,9 @@ def get_data() :
                     path_file_ex += "/"
         else :
             path_file_ex += got_path + "/"
+
+    else :
+        path_file_ex = ""
 
     i = -1
     print(path_file_ex.split("/"))
@@ -117,12 +130,12 @@ def get_data() :
 
                 client.send(CAESAR("get_obj_info").encode())
 
-                client.send(CAESAR(path_file_ex + f + "\0").encode())
+                client.send(CAESAR(path_file_ex_2 + f + "\0").encode())
                 
                 infos = recv_message_ret(client).decode("latin-1")
-                #print(infos)
-
-                data.append({"url": f"<a>{f}</a>", "modified": "", "size":""})
+                taille, modified = infos.split("/")
+                
+                data.append({"url": f"<a>{f}</a>", "modified": f"{modified}", "size":f"{convert_size(int(taille))}"})
                 
     json_data = jsonify({"data":data})
     return json_data
@@ -344,7 +357,7 @@ def main() -> None :
         
         elif cmd == "fex" :
             print("\nClique sur le lien ci-dessous pour voir le file explorer :")
-            print("http://127.0.0.1:5000")
+            print("http://127.0.0.1:5000\n")
 
         else :
             print("Commande non reconnue, \"help\" pour afficher la liste des commandes.")
