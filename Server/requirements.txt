@@ -1,4 +1,5 @@
 colorama
 prettytable
+easygui
 python-geoip-python3
 python-geoip-geolite2

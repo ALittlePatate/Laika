@@ -1,14 +1,6 @@
 #include "file_explorer.h"
 #include "utils.h"
 
-int delete_file(char* path) {
-	return Api.remove(path);
-}
-
-int delete_dir(char* path) {
-	return Api.rmdir(path);
-}
-
 int get_object_info(char* path, struct stat* fileinfo) {
 	return Api.stat(path, fileinfo);
 }

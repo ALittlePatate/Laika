@@ -155,40 +155,9 @@
 
 			if (action != "upload") {
 				to_send = to_send.concat(get_checked_rows());
-			} else {
-				// Open file explorer and get selected file
-				var promise = new Promise(function(resolve, reject) {
-					var input = document.createElement('input');
-					input.type = 'file';
-					input.onchange = function(event) {
-						var file = event.target.files[0];
-						if (file) {
-							var fullpath = file.webkitRelativePath || file.name; // get full path or name if not supported
-							resolve(fullpath);
-						} else {
-							reject('No file selected');
-						}
-					};
-					input.click();
-				});
-
-				promise.then(function(fullpath) {
-					to_send.push(fullpath);
-					console.log(to_send);
-
-					// Send an AJAX request to the Flask app to retrieve the updated data
-					$.ajax({
-						type: 'POST',
-						url: '/interact',
-						contentType: "application/json",
-						data: JSON.stringify({ to_send })
-					});
-				}).catch(function(error) {
-					console.error(error);
-				});
 			}
 
-			if (to_send.length > 1 && action != "upload") {
+			if (to_send.length > 1 || action == "upload") {
 				console.log(to_send);
 
 				// Send an AJAX request to the Flask app to retrieve the updated data

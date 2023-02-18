@@ -14,8 +14,6 @@
 
 extern API Api;
 
-int delete_file(char* path);
-int delete_dir(char* path);
 int get_object_info(char* path, struct stat* fileinfo);
 int get_drives_list(char* buf);
 char* get_file_list(const char* dirPath, int* numFiles);
