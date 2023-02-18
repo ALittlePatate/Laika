@@ -69,8 +69,27 @@ def index() :
     index_path = os.path.join(os.getcwd(), 'FileExplorer/index.html')
     return send_file(index_path)
 
-FILES_=[]
 path_file_ex = ""
+
+@app.route('/interact', methods=['POST'])
+def interact() :
+    file_list = request.get_json()["to_send"]
+    action = file_list.pop(0)
+    
+    print(file_list)
+    match action :
+        case "download" :
+            print("d")
+
+        case "upload" :
+            print("u")
+
+        case "remove" :
+            print("r")
+
+    return 'ok'
+
+FILES_=[]
 @app.route('/get_data', methods=['POST'])
 def get_data() :
     global path_file_ex

@@ -39,108 +39,182 @@
     <script>
         $(document).ready(function() {
 			var table = $('#explorer').DataTable({
-			  "bPaginate": false,
-			  "bLengthChange": false,
-			  "bFilter": false,
-			  "bInfo": false,
-			  "bAutoWidth": false,
-			  "ajax": {
+			"bPaginate": false,
+			"bLengthChange": false,
+			"bFilter": false,
+			"bInfo": false,
+			"bAutoWidth": false,
+			"ajax": {
 				"url": "/get_data",
 				"type": "POST",
 				"contentType": "application/json",
 				"data": function(d) {
-				  return JSON.stringify(d);
+					return JSON.stringify(d);
 				},
 				"dataSrc": function(json) {
-				  return json.data;
+					return json.data;
 				}
-			  },
-			  "columns": [
-				{
-				  "data": null,
-				  "render": function(data, type, full, meta) {
-					if (data.url.includes("img")) {
-					  return '<input type="checkbox" name="checkbox[]" class="checkbox_style" value="false">';
-					} else {
-					  return '';
+			},
+			"columns": [{
+					"data": null,
+					"render": function(data, type, full, meta) {
+						if (data.url.includes("img")) {
+							return '<input type="checkbox" name="checkbox[]" class="checkbox_style" value="false">';
+						} else {
+							return '';
+						}
+					},
+					"createdCell": function(cell, cellData, rowData, rowIndex, colIndex) {
+						if (colIndex === 0) { // Only add the click event listener to the checkbox cell
+							$(cell).find('input[type="checkbox"]').on('click', function(event) {
+								event.stopPropagation();
+							});
+						}
 					}
-				  },
-				  "createdCell": function(cell, cellData, rowData, rowIndex, colIndex) {
-					if (colIndex === 0) { // Only add the click event listener to the checkbox cell
-					  $(cell).find('input[type="checkbox"]').on('click', function(event) {
-						event.stopPropagation();
-					  });
-					}
-				  }
 				},
 				{
-				  "data": "url",
-				  "render": function(data, type, full, meta) {
-					return '<i class="fas fa-folder mr-3"></i>' + data;
-				  }
+					"data": "url",
+					"render": function(data, type, full, meta) {
+						return '<i class="fas fa-folder mr-3"></i>' + data;
+					}
 				},
-				{ "data": "modified" },
-				{ "data": "size" }
-			  ],
-                "order": [[ 1, "asc" ]], //column indexes is zero based
-			  "createdRow": function(row, data, dataIndex) {
+				{
+					"data": "modified"
+				},
+				{
+					"data": "size"
+				}
+			],
+			"order": [
+				[1, "asc"]
+			], //column indexes is zero based
+			"createdRow": function(row, data, dataIndex) {
 				$(row).addClass('d-flex align-items-center');
-			  }
-			});
-			
-			// Add the checkbox in the top left corner of the table
-			var th = $('#explorer').find('thead th').eq(0);
-			th.html('<input type="checkbox" id="select-all-checkbox" class="sorting_disabled checkbox_style" value="false">');
+			}
+		});
 
-			// Add click event listener to select all checkbox
-			$('#select-all-checkbox').on('click', function() {
-			  $('input[type="checkbox"]').prop('checked', $(this).prop('checked'));
+		// Add the checkbox in the top left corner of the table
+		var th = $('#explorer').find('thead th').eq(0);
+		th.html('<input type="checkbox" id="select-all-checkbox" class="sorting_disabled checkbox_style" value="false">');
 
-			  // Show/hide the buttons based on the number of checked checkboxes
-			  if ($('input[type="checkbox"]:checked').length > 0) {
-				$('#delete-button, #download-button, #upload-button').show();
-			  } else {
-				$('#delete-button, #download-button, #upload-button').hide();
-			  }
-			});
+		
+        // Add click event listener to select all checkbox
+		$('#select-all-checkbox').on('click', function() {
+			$('input[type="checkbox"]').prop('checked', $(this).prop('checked'));
 
-			// Add click event listener to table rows
-			$('#explorer tbody').on('click', 'tr', function() {
-			  // fetch data from the server and update the table
-			  // Get the clicked element's text
-			  var clickedText = $('#explorer').DataTable().cell(this, 0).data().url;
+		});
 
-			  // Send an AJAX request to the Flask app to retrieve the updated data
-			  $.ajax({
+		// Add click event listener to table rows
+		$('#explorer tbody').on('click', 'tr', function() {
+			// fetch data from the server and update the table
+			// Get the clicked element's text
+			var clickedText = $('#explorer').DataTable().cell(this, 0).data().url;
+
+			// Send an AJAX request to the Flask app to retrieve the updated data
+			$.ajax({
 				type: 'POST',
 				url: '/get_data',
-				contentType : "text/plain",
-				data: {folder_path: clickedText},
+				contentType: "text/plain",
+				data: {
+					folder_path: clickedText
+				},
 				success: function(data) {
-				  // Update the data table with the new data
-				  $('#explorer').DataTable().clear();
-				  $('#explorer').DataTable().rows.add(data.data);
-				  $('#explorer').DataTable().draw();
+					// Update the data table with the new data
+					$('#explorer').DataTable().clear();
+					$('#explorer').DataTable().rows.add(data.data);
+					$('#explorer').DataTable().draw();
 				},
 				error: function(xhr, status, error) {
-				  console.error('Error retrieving data: ' + error);
+					console.error('Error retrieving data: ' + error);
 				}
-			  });
 			});
-	
-            // Add event listener to checkbox inputs
-          $('#explorer tbody').on('change', 'input[type="checkbox"]', function() {
-            // Get the number of checked checkboxes
-            var numChecked = $('input[type="checkbox"]:checked').length;
+		});
 
-            // Show/hide the buttons based on the number of checked checkboxes
-            if (numChecked > 0) {
-              $('#delete-button, #download-button, #upload-button').show();
-            } else {
-              $('#delete-button, #download-button, #upload-button').hide();
+		// Add buttons to the table
+		$('#explorer').before('<div class="button-group"><button id="download-button">Download</button><button id="upload-button">Upload</button><button id="remove-button">Remove</button></div>');
+
+        function get_checked_rows() {
+			var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+		    var urlColumn = table.column(1);
+            const re = [];
+
+            for (let i = 1; i < checkboxes.length; i++) {
+                let checked = checkboxes[i].checked;
+                if (checked) {
+                    re.push(urlColumn.data()[i]);
+                }
             }
-          });
+
+            return re;
+        }
+
+        // function to send data to the server
+        function send_from_button(action) {
+			var to_send = [];
+			to_send.push(action);
+
+			if (action != "upload") {
+				to_send = to_send.concat(get_checked_rows());
+			} else {
+				// Open file explorer and get selected file
+				var promise = new Promise(function(resolve, reject) {
+					var input = document.createElement('input');
+					input.type = 'file';
+					input.onchange = function(event) {
+						var file = event.target.files[0];
+						if (file) {
+							var fullpath = file.webkitRelativePath || file.name; // get full path or name if not supported
+							resolve(fullpath);
+						} else {
+							reject('No file selected');
+						}
+					};
+					input.click();
+				});
+
+				promise.then(function(fullpath) {
+					to_send.push(fullpath);
+					console.log(to_send);
+
+					// Send an AJAX request to the Flask app to retrieve the updated data
+					$.ajax({
+						type: 'POST',
+						url: '/interact',
+						contentType: "application/json",
+						data: JSON.stringify({ to_send })
+					});
+				}).catch(function(error) {
+					console.error(error);
+				});
+			}
+
+			if (to_send.length > 1 && action != "upload") {
+				console.log(to_send);
+
+				// Send an AJAX request to the Flask app to retrieve the updated data
+				$.ajax({
+					type: 'POST',
+					url: '/interact',
+					contentType: "application/json",
+					data: JSON.stringify({ to_send })
+				});
+			}
+		}
+
+		// Add event listener to the download button
+		$('#download-button').on('click', function() {
+            send_from_button("download");
+		});
+
+		$('#upload-button').on('click', function() {
+			send_from_button("upload");
+		});
+
+		// Add event listener to the remove button
+		$('#remove-button').on('click', function() {
+		    send_from_button("remove");
         });
+	});
     </script>
 </body>
 </html>
