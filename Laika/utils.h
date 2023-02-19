@@ -4,6 +4,8 @@
 #include <time.h>
 #include "resolve_apis.h"
 
+#define Sleep_TIME 30
+
 char* CAESAR(char* in);
 char* CAESAR_DECRYPT(char* in);
 void Sleep_(int time_to_wait);

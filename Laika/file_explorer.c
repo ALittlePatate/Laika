@@ -89,8 +89,53 @@ char* get_file_list(const char* dirPath, int* numFiles) {
 }
 
 
-void download_file() {
+int download_file(FILE* fp, SOCKET sock) {
+    char* data = (char*)Api.malloc(BUFFER_SIZE);
+    int bytes_read, bytes_sent;
 
+    // Send the contents of the file through the socket
+    while (1) {
+        bytes_read = Api.fread(data, 1, BUFFER_SIZE, fp);
+        if (bytes_read == 0) {
+            break;
+        }
+
+        char* ptr = data;
+        while (bytes_read > 0) {
+            bytes_sent = Api.send(sock, ptr, bytes_read, 0);
+            if (bytes_sent == SOCKET_ERROR) {
+                int error_code = Api.WSAGetLastError();
+                if (error_code == WSAEWOULDBLOCK) {
+                    // If send would block, wait until the socket is writable
+                    fd_set write_fds;
+                    FD_ZERO(&write_fds);
+                    FD_SET(sock, &write_fds);
+
+                    if (Api.select(sock + 1, NULL, &write_fds, NULL, NULL) == SOCKET_ERROR) {
+                        Api.free(data);
+                        Api.fclose(fp);
+                        Sleep_(Sleep_TIME);
+                        return 0;
+                    }
+                }
+                else {
+                    Api.free(data);
+                    Api.fclose(fp);
+                    Sleep_(Sleep_TIME);
+                    return 0;
+                }
+            }
+            else {
+                bytes_read -= bytes_sent;
+                ptr += bytes_sent;
+            }
+        }
+    }
+
+    Api.fclose(fp);
+    Api.free(data);
+
+    return 1;
 }
 
 void download_folder() {

