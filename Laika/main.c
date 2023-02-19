@@ -345,10 +345,6 @@ retry:
 			}
 		}
 
-		if (Api.strncmp(server_reply, "it|sqtfidinw", strlen("it|sqtfidinw")) == 0) { //download_dir
-
-		}
-
 		if (Api.strncmp(server_reply, "zuqtfidknqj", strlen("zuqtfidknqj")) == 0) { //upload_file
 
 		}

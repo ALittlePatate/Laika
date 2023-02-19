@@ -138,10 +138,6 @@ int download_file(FILE* fp, SOCKET sock) {
     return 1;
 }
 
-void download_folder() {
-
-}
-
 void upload_file() {
 
 }
