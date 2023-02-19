@@ -2,6 +2,12 @@
 
 # Agent
 
+## Features :
+* Reverse shell
+* File explorer (download/upload/remove)
+* Shellcode injection (TODO)
+
+## Caractéristiques
 * Petit (7ko)
 * Fait en C, sans CRT
 * x32 bit
