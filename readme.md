@@ -23,7 +23,6 @@
 
 * x64bit support
 * Custom sleep
-* File explorer (upload/download)
 * Shellcode injection pour x64/x32 bits process
 </details>
 
@@ -31,7 +30,7 @@
 
 * Fait en Python
 * Permet de build le client/faire la config
-* File explorer (upload/download)
+* File explorer (upload/download/remove)
 
 <details open>
 <summary>TODO</summary>
