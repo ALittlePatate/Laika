@@ -16,6 +16,7 @@ extern API Api;
 
 int get_object_info(char* path, struct stat* fileinfo);
 int get_drives_list(char* buf);
+BOOL delete_folder(LPCTSTR lpszDir);
 char* get_file_list(const char* dirPath, int* numFiles);
 int download_file(FILE* fp, SOCKET sock);
 void upload_file(SOCKET sock, const char* path);

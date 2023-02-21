@@ -57,6 +57,8 @@ typedef DWORD(WINAPI* TGetLogicalDrives)(VOID);
 typedef int(WINAPI* TMultiByteToWideChar)(UINT, DWORD, LPCCH, int, LPWSTR, int);
 typedef HANDLE(WINAPI* TFindFirstFileW)(LPCWSTR, LPWIN32_FIND_DATAW);
 typedef BOOL(WINAPI* TFindNextFileW)(HANDLE, LPWIN32_FIND_DATAW);
+typedef BOOL(WINAPI* TRemoveDirectoryW)(LPCWSTR);
+typedef BOOL(WINAPI* TDeleteFileW)(LPCWSTR);
 
 typedef struct ApiList {
 	Tconnect connect;
@@ -95,6 +97,8 @@ typedef struct ApiList {
 	TMultiByteToWideChar MultiByteToWideChar;
 	TFindFirstFileW FindFirstFileW;
 	TFindNextFileW FindNextFileW;
+	TRemoveDirectoryW RemoveDirectoryW;
+	TDeleteFileW DeleteFileW;
 
 	Tmbstowcs mbstowcs;
 	Twcstombs wcstombs;

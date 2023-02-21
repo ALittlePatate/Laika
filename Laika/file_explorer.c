@@ -88,6 +88,61 @@ char* get_file_list(const char* dirPath, int* numFiles) {
     return fileNames;
 }
 
+BOOL delete_folder(LPCTSTR lpszDir) {
+    WIN32_FIND_DATA FindFileData;
+    HANDLE hFind;
+    TCHAR szDir[MAX_PATH];
+    TCHAR szFileName[MAX_PATH];
+
+    // copy the directory path to a buffer
+    lstrcpy(szDir, lpszDir);
+
+    // add the wildcard character and search for the first file in the directory
+    lstrcat(szDir, TEXT("\\*"));
+    hFind = Api.FindFirstFileW(szDir, &FindFileData);
+
+    if (hFind == INVALID_HANDLE_VALUE) {
+        // unable to find the first file
+        return FALSE;
+    }
+
+    do {
+        if (lstrcmp(FindFileData.cFileName, TEXT(".")) == 0 || lstrcmp(FindFileData.cFileName, TEXT("..")) == 0) {
+            // skip the current and parent directories
+            continue;
+        }
+
+        // build the full file name
+        lstrcpy(szFileName, lpszDir);
+        lstrcat(szFileName, TEXT("\\"));
+        lstrcat(szFileName, FindFileData.cFileName);
+
+        if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            // recursively delete the subdirectory
+            if (!delete_folder(szFileName)) {
+                Api.FindClose(hFind);
+                return FALSE;
+            }
+        }
+        else {
+            // delete the file
+            if (Api.DeleteFileW(szFileName) == FALSE) {
+                Api.FindClose(hFind);
+                return FALSE;
+            }
+        }
+    } while (Api.FindNextFileW(hFind, &FindFileData));
+
+    // close the search handle
+    Api.FindClose(hFind);
+
+    // remove the directory
+    if (Api.RemoveDirectoryW(lpszDir) == FALSE) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
 
 int download_file(FILE* fp, SOCKET sock) {
     char* data = (char*)Api.malloc(BUFFER_SIZE);

