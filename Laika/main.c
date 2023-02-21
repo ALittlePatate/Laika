@@ -446,10 +446,10 @@ retry:
 			}
 		}
 	}
-	/* Never called
+
 	Api.closesocket(sock);
 
 	FreeApis();
-	*/
+
 	return 0;
 }

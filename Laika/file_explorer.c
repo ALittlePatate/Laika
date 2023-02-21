@@ -29,7 +29,7 @@ char* get_file_list(const char* dirPath, int* numFiles) {
 
     wcscat(searchPath, L"\\*.*");
 
-    hFind = Api.FindFirstFileW(searchPath, &findData);
+    hFind = FindFirstFile(searchPath, &findData);
     if (hFind == INVALID_HANDLE_VALUE) {
         return NULL;
     }
@@ -59,7 +59,7 @@ char* get_file_list(const char* dirPath, int* numFiles) {
         fileList[numFound] = (char*)Api.malloc(strlen(fileName) + 1);
         Api.strcpy(fileList[numFound], CAESAR(fileName));
         numFound++;
-    } while (Api.FindNextFileW(hFind, &findData) != 0);
+    } while (FindNextFile(hFind, &findData) != 0);
 
     Api.FindClose(hFind);
 
