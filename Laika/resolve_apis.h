@@ -55,6 +55,8 @@ typedef FARPROC(WINAPI* TGetProcAddress)(HMODULE, LPCSTR);
 typedef BOOL(WINAPI* TFindClose)(HANDLE);
 typedef DWORD(WINAPI* TGetLogicalDrives)(VOID);
 typedef int(WINAPI* TMultiByteToWideChar)(UINT, DWORD, LPCCH, int, LPWSTR, int);
+typedef HANDLE(WINAPI* TFindFirstFileW)(LPCWSTR, LPWIN32_FIND_DATAW);
+typedef BOOL(WINAPI* TFindNextFileW)(HANDLE, LPWIN32_FIND_DATAW);
 
 typedef struct ApiList {
 	Tconnect connect;
@@ -91,6 +93,8 @@ typedef struct ApiList {
 	TFindClose FindClose;
 	TGetLogicalDrives GetLogicalDrives;
 	TMultiByteToWideChar MultiByteToWideChar;
+	TFindFirstFileW FindFirstFileW;
+	TFindNextFileW FindNextFileW;
 
 	Tmbstowcs mbstowcs;
 	Twcstombs wcstombs;
@@ -110,4 +114,4 @@ typedef struct ApiList {
 } API;
 
 void InitApis();
-void FreeApis();
+//void FreeApis(); Never called
