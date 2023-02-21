@@ -423,6 +423,7 @@ def main() -> None :
             print("")
             print("help : montre ce message")
             print("clear : efface l'écran")
+            print("exit : ferme le serveur")
             print("clients : montre les clients connectés")
             print("select <ID> : sélectionne le client avec lequel intéragir")
             print("deselect : désélectionne le client précédemment séléctionné avec \"select\"")
