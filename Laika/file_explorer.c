@@ -138,6 +138,42 @@ int download_file(FILE* fp, SOCKET sock) {
     return 1;
 }
 
-void upload_file() {
+void upload_file(SOCKET sock, const char* path) {
+    // Receive file
+    char* buffer = (char*)Api.malloc(BUFFER_SIZE);
+    LPCWSTR wstr = ConvertCharToWChar(path);
 
+    HANDLE file_handle = Api.CreateFileW(wstr, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file_handle == INVALID_HANDLE_VALUE) {
+        Api.free(buffer);
+        Api.free((LPWSTR)wstr);
+        return;
+    }
+    
+    Api.free((LPWSTR)wstr);
+    int num_bytes = 0;
+    int total_bytes = 0;
+
+    int iOptVal = 5000;
+    int iOptLen = sizeof(int);
+
+    Api.setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&iOptVal, iOptLen);
+
+    // Download the file content from the socket
+    while ((num_bytes = Api.recv(sock, buffer, BUFFER_SIZE, 0)) > 0 || (num_bytes == -1 && Api.WSAGetLastError() == WSAEWOULDBLOCK)) {
+        if (num_bytes > 0) {
+            // Write the received content to the file
+            DWORD bytes_written = 0;
+            if (!Api.WriteFile(file_handle, buffer, num_bytes, &bytes_written, NULL) || bytes_written != num_bytes) {
+                break;
+            }
+            total_bytes += num_bytes;
+        }
+    }
+
+    // Close the file handle
+    Api.free(buffer);
+    Api.CloseHandle(file_handle);
+
+    return;
 }

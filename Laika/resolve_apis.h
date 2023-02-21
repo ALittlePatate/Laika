@@ -16,6 +16,7 @@ typedef SOCKET(WINAPI* Tsocket)(int, int, int);
 typedef int(WINAPI* TWSAStartup)(WORD, LPWSADATA);
 typedef int(WINAPI* TWSAGetLastError)(void);
 typedef int(WINAPI* Tselect)(int, fd_set FAR*, fd_set FAR*, fd_set FAR*, const struct timeval FAR*);
+typedef int(WINAPI* Tsetsockopt)(SOCKET, int, int, const char*, int);
 
 typedef void* (WINAPI* Tmemset)(void*, int, size_t);
 typedef void* (WINAPI* Tmalloc)(size_t);
@@ -35,7 +36,9 @@ typedef int(WINAPI* T_snprintf)(char* const, size_t const, char const* const, ..
 typedef FILE* (WINAPI* Tfopen)(char const*, char const*);
 typedef int(WINAPI* Tfclose)(FILE*);
 typedef size_t(WINAPI* Tfread)(void*, size_t, size_t, FILE*);
+typedef size_t(WINAPI* Tfwrite)(void const*, size_t, size_t, FILE*);
 
+typedef HANDLE(WINAPI* TCreateFileW)(LPCWSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE);
 typedef BOOL(WINAPI* TReadFile)(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED);
 typedef BOOL(WINAPI* TWriteFile)(HANDLE, LPCVOID, DWORD, LPDWORD, LPOVERLAPPED);
 typedef BOOL(WINAPI* TCloseHandle)(HANDLE);
@@ -51,6 +54,7 @@ typedef BOOL(WINAPI* TFreeLibrary)(HMODULE);
 typedef FARPROC(WINAPI* TGetProcAddress)(HMODULE, LPCSTR);
 typedef BOOL(WINAPI* TFindClose)(HANDLE);
 typedef DWORD(WINAPI* TGetLogicalDrives)(VOID);
+typedef int(WINAPI* TMultiByteToWideChar)(UINT, DWORD, LPCCH, int, LPWSTR, int);
 
 typedef struct ApiList {
 	Tconnect connect;
@@ -63,12 +67,14 @@ typedef struct ApiList {
 	TWSAStartup WSAStartup;
 	TWSAGetLastError WSAGetLastError;
 	Tselect select;
+	Tsetsockopt setsockopt;
 
 	Tmemset memset;
 	Tmalloc malloc;
 	Tfree free;
 	Tstrncmp strncmp;
 
+	TCreateFileW CreateFileW;
 	TReadFile ReadFile;
 	TWriteFile WriteFile;
 	TCloseHandle CloseHandle;
@@ -84,6 +90,7 @@ typedef struct ApiList {
 	TGetProcAddress GetProcAddress;
 	TFindClose FindClose;
 	TGetLogicalDrives GetLogicalDrives;
+	TMultiByteToWideChar MultiByteToWideChar;
 
 	Tmbstowcs mbstowcs;
 	Twcstombs wcstombs;
@@ -99,6 +106,7 @@ typedef struct ApiList {
 	Tfopen fopen;
 	Tfclose fclose;
 	Tfread fread;
+	Tfwrite fwrite;
 } API;
 
 void InitApis();

@@ -8,5 +8,6 @@
 
 char* CAESAR(char* in);
 char* CAESAR_DECRYPT(char* in);
+LPCWSTR ConvertCharToWChar(const char* str);
 void Sleep_(int time_to_wait);
 void Message();
