@@ -13,6 +13,9 @@
     <Filter Include="File explorer">
       <UniqueIdentifier>{1c39cfa5-e620-4df2-bae9-e24a26485d37}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shellcode">
+      <UniqueIdentifier>{15e1ca95-85db-48cd-8b71-413ceac5d0b8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -27,6 +30,9 @@
     <ClCompile Include="file_explorer.c">
       <Filter>File explorer</Filter>
     </ClCompile>
+    <ClCompile Include="shellcode.c">
+      <Filter>Shellcode</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils.h">
@@ -40,6 +46,9 @@
     </ClInclude>
     <ClInclude Include="file_explorer.h">
       <Filter>File explorer</Filter>
+    </ClInclude>
+    <ClInclude Include="shellcode.h">
+      <Filter>Shellcode</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

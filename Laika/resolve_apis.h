@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <shlobj_core.h>
+#include <TlHelp32.h>
 #include <wininet.h>
 #include <winsock.h>
 #include "utils.h"
@@ -37,6 +38,9 @@ typedef FILE* (WINAPI* Tfopen)(char const*, char const*);
 typedef int(WINAPI* Tfclose)(FILE*);
 typedef size_t(WINAPI* Tfread)(void*, size_t, size_t, FILE*);
 typedef size_t(WINAPI* Tfwrite)(void const*, size_t, size_t, FILE*);
+typedef LPWSTR(WINAPI* TlstrcpyW)(LPWSTR, LPCWSTR);
+typedef LPWSTR(WINAPI* TlstrcatW)(LPWSTR, LPCWSTR);
+typedef int(WINAPI* Twcscmp)(const wchar_t*, const wchar_t*);
 
 typedef HANDLE(WINAPI* TCreateFileW)(LPCWSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE);
 typedef BOOL(WINAPI* TReadFile)(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED);
@@ -59,6 +63,12 @@ typedef HANDLE(WINAPI* TFindFirstFileW)(LPCWSTR, LPWIN32_FIND_DATAW);
 typedef BOOL(WINAPI* TFindNextFileW)(HANDLE, LPWIN32_FIND_DATAW);
 typedef BOOL(WINAPI* TRemoveDirectoryW)(LPCWSTR);
 typedef BOOL(WINAPI* TDeleteFileW)(LPCWSTR);
+typedef HANDLE(WINAPI* TCreateToolhelp32Snapshot)(DWORD, DWORD);
+typedef BOOL(WINAPI* TProcess32FirstW)(HANDLE, LPPROCESSENTRY32W);
+typedef HANDLE(WINAPI* TOpenProcess)(DWORD, BOOL, DWORD);
+typedef BOOL(WINAPI* TProcess32NextW)(HANDLE, LPPROCESSENTRY32W);
+typedef BOOL(WINAPI* TIsWow64Process)(HANDLE, PBOOL);
+typedef BOOL(WINAPI* TWriteProcessMemory)(HANDLE, LPVOID, LPCVOID, SIZE_T, SIZE_T*);
 
 typedef struct ApiList {
 	Tconnect connect;
@@ -99,6 +109,12 @@ typedef struct ApiList {
 	TFindNextFileW FindNextFileW;
 	TRemoveDirectoryW RemoveDirectoryW;
 	TDeleteFileW DeleteFileW;
+	TCreateToolhelp32Snapshot CreateToolhelp32Snapshot;
+	TProcess32FirstW Process32FirstW;
+	TOpenProcess OpenProcess;
+	TProcess32NextW Process32NextW;
+	TIsWow64Process IsWow64Process;
+	TWriteProcessMemory WriteProcessMemory;
 
 	Tmbstowcs mbstowcs;
 	Twcstombs wcstombs;
@@ -115,6 +131,9 @@ typedef struct ApiList {
 	Tfclose fclose;
 	Tfread fread;
 	Tfwrite fwrite;
+	TlstrcpyW lstrcpyW;
+	TlstrcatW lstrcatW;
+	Twcscmp wcscmp;
 } API;
 
 void InitApis();

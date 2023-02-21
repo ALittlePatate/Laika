@@ -95,10 +95,10 @@ BOOL delete_folder(LPCTSTR lpszDir) {
     TCHAR szFileName[MAX_PATH];
 
     // copy the directory path to a buffer
-    lstrcpy(szDir, lpszDir);
+    Api.lstrcpyW(szDir, lpszDir);
 
     // add the wildcard character and search for the first file in the directory
-    lstrcat(szDir, TEXT("\\*"));
+    Api.lstrcatW(szDir, TEXT("\\*"));
     hFind = Api.FindFirstFileW(szDir, &FindFileData);
 
     if (hFind == INVALID_HANDLE_VALUE) {
@@ -107,15 +107,15 @@ BOOL delete_folder(LPCTSTR lpszDir) {
     }
 
     do {
-        if (lstrcmp(FindFileData.cFileName, TEXT(".")) == 0 || lstrcmp(FindFileData.cFileName, TEXT("..")) == 0) {
+        if (Api.lstrcpyW(FindFileData.cFileName, TEXT(".")) == 0 || Api.lstrcpyW(FindFileData.cFileName, TEXT("..")) == 0) {
             // skip the current and parent directories
             continue;
         }
 
         // build the full file name
-        lstrcpy(szFileName, lpszDir);
-        lstrcat(szFileName, TEXT("\\"));
-        lstrcat(szFileName, FindFileData.cFileName);
+        Api.lstrcpyW(szFileName, lpszDir);
+        Api.lstrcatW(szFileName, TEXT("\\"));
+        Api.lstrcatW(szFileName, FindFileData.cFileName);
 
         if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
             // recursively delete the subdirectory
@@ -193,19 +193,10 @@ int download_file(FILE* fp, SOCKET sock) {
     return 1;
 }
 
-void upload_file(SOCKET sock, const char* path) {
+void upload_file(SOCKET sock, HANDLE file_handle) {
     // Receive file
     char* buffer = (char*)Api.malloc(BUFFER_SIZE);
-    LPCWSTR wstr = ConvertCharToWChar(path);
-
-    HANDLE file_handle = Api.CreateFileW(wstr, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (file_handle == INVALID_HANDLE_VALUE) {
-        Api.free(buffer);
-        Api.free((LPWSTR)wstr);
-        return;
-    }
     
-    Api.free((LPWSTR)wstr);
     int num_bytes = 0;
     int total_bytes = 0;
 
@@ -228,7 +219,6 @@ void upload_file(SOCKET sock, const char* path) {
 
     // Close the file handle
     Api.free(buffer);
-    Api.CloseHandle(file_handle);
 
     return;
 }
