@@ -8,7 +8,7 @@
 * Shellcode injection (TODO)
 
 ## Caractéristiques
-* Petit (7ko)
+* Petit (12ko)
 * Fait en C, sans CRT
 * x32 bit
 * Modulaire (peut se déployer via shellcode/dll/pe injection/.exe)
@@ -36,21 +36,8 @@
 <details open>
 <summary>TODO</summary>
 
-* Ajouter un crypteur/dropper
 * Fix l'input qui bloque l'arrivée de données (reproductible avec une session powershell)
 </details>
 
 
 ![Alt text](Screenshots/Server.PNG "Screenshot du server")
-
-# Crypter
-
-En WIP.
-
-<details open>
-<summary>TODO</summary>
-
-* Ajouter du code mutation
-* Control flow flattening
-* Anti-disassembly
-</details>
