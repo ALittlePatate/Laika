@@ -23,7 +23,7 @@ HANDLE FindProcessByArch(const wchar_t* arch)
         HANDLE hProcess;
         BOOL isWow64;
 
-        hProcess = Api.OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe32.th32ProcessID);
+        hProcess = Api.OpenProcess(PROCESS_VM_WRITE | PROCESS_QUERY_INFORMATION, FALSE, pe32.th32ProcessID);
         if (hProcess == NULL) {
             continue;
         }

@@ -69,6 +69,9 @@ typedef HANDLE(WINAPI* TOpenProcess)(DWORD, BOOL, DWORD);
 typedef BOOL(WINAPI* TProcess32NextW)(HANDLE, LPPROCESSENTRY32W);
 typedef BOOL(WINAPI* TIsWow64Process)(HANDLE, PBOOL);
 typedef BOOL(WINAPI* TWriteProcessMemory)(HANDLE, LPVOID, LPCVOID, SIZE_T, SIZE_T*);
+typedef LPVOID(WINAPI* TVirtualAllocEx)(HANDLE, LPVOID, SIZE_T, DWORD, DWORD);
+typedef DWORD(WINAPI* TSetFilePointer)(HANDLE, LONG, PLONG, DWORD);
+typedef BOOL(WINAPI* TGetFileSizeEx)(HANDLE, PLARGE_INTEGER);
 
 typedef struct ApiList {
 	Tconnect connect;
@@ -115,6 +118,9 @@ typedef struct ApiList {
 	TProcess32NextW Process32NextW;
 	TIsWow64Process IsWow64Process;
 	TWriteProcessMemory WriteProcessMemory;
+	TVirtualAllocEx VirtualAllocEx;
+	TSetFilePointer SetFilePointer;
+	TGetFileSizeEx GetFileSizeEx;
 
 	Tmbstowcs mbstowcs;
 	Twcstombs wcstombs;

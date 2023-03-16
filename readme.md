@@ -1,14 +1,16 @@
 # Laika
 
+J'ai commencé un début de Shellcode injection mais j'ai un peu la flemme de continuer. Pour bien faire il faudrait créer un process "zombie" qui va recevoir les shellcodes à injecter (agents/features), et un watcher qui le relance s'il meurt.<br>
+L'agent N'EST PAS plug and play, il manque certaines choses, de plus c'est un projet perso et c'est pas vraiment fait pour être utilisé.<br>
+
 # Agent
 
 ## Features :
 * Reverse shell
 * File explorer (download/upload/remove)
-* Shellcode injection (TODO)
 
 ## Caractéristiques
-* Petit (12ko)
+* Petit (14ko)
 * Fait en C, sans CRT
 * x32 bit
 * Modulaire (peut se déployer via shellcode/dll/pe injection/.exe)

