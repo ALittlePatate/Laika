@@ -7,10 +7,11 @@ L'agent N'EST PAS plug and play, il manque certaines choses, de plus c'est un pr
 
 ## Features :
 * Reverse shell
-* File explorer (download/upload/remove)
+* File explorer (download/upload/remove/execute)
+* Shellcode execution
 
 ## Caractéristiques
-* Petit (14ko)
+* Petit (16ko)
 * Fait en C, sans CRT
 * x32 bit
 * Modulaire (peut se déployer via shellcode/dll/pe injection/.exe)
@@ -32,7 +33,7 @@ L'agent N'EST PAS plug and play, il manque certaines choses, de plus c'est un pr
 
 * Fait en Python
 * Permet de build le client/faire la config
-* File explorer (upload/download/remove)
+* File explorer (upload/download/remove/execute)
 
 <details open>
 <summary>TODO</summary>
