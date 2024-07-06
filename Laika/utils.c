@@ -1,17 +1,8 @@
 #include "utils.h"
+#include "libc.h"
+
 const int _fltused = 0; //fuck linker errors, all my homies hate CRT
 extern API Api;
-
-void Message() {
-	if (1 == 3) {
-		int msgboxID = MessageBox(
-			NULL,
-			(LPCWSTR)L"Hello this is a message box",
-			(LPCWSTR)L"Hello !",
-			MB_ICONWARNING | MB_CANCELTRYCONTINUE | MB_DEFBUTTON2
-		);
-	}
-}
 
 #define KEY 5
 char* CAESAR(char* in) {
@@ -34,7 +25,7 @@ LPCWSTR ConvertCharToWChar(const char* str)
 {
 	int len = strlen(str) + 1;
 	int wlen = Api.MultiByteToWideChar(CP_ACP, 0, str, len, NULL, 0);
-	LPWSTR wstr = (LPWSTR)Api.malloc(wlen * sizeof(WCHAR));
+	LPWSTR wstr = (LPWSTR)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, wlen * sizeof(WCHAR));
 	Api.MultiByteToWideChar(CP_ACP, 0, str, len, wstr, wlen);
 	return wstr;
 }

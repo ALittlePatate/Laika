@@ -33,6 +33,9 @@
     <ClCompile Include="shellcode.c">
       <Filter>Shellcode</Filter>
     </ClCompile>
+    <ClCompile Include="libc.c">
+      <Filter>Libs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils.h">
@@ -49,6 +52,9 @@
     </ClInclude>
     <ClInclude Include="shellcode.h">
       <Filter>Shellcode</Filter>
+    </ClInclude>
+    <ClInclude Include="libc.h">
+      <Filter>Libs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

