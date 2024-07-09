@@ -32,6 +32,7 @@ typedef int(WINAPI* Tsetsockopt)(SOCKET, int, int, const char*, int);
 typedef LPWSTR(WINAPI* TlstrcpyW)(LPWSTR, LPCWSTR);
 typedef LPWSTR(WINAPI* TlstrcatW)(LPWSTR, LPCWSTR);
 
+typedef DWORD(WINAPI* TGetFileAttributesW)(LPCWSTR);
 typedef HANDLE(WINAPI* TCreateFileW)(LPCWSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE);
 typedef BOOL(WINAPI* TReadFile)(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED);
 typedef BOOL(WINAPI* TWriteFile)(HANDLE, LPCVOID, DWORD, LPDWORD, LPOVERLAPPED);
@@ -45,6 +46,7 @@ typedef BOOL(WINAPI* TTerminateThread)(HANDLE, DWORD);
 typedef BOOL(WINAPI* TCreateProcessW)(LPCWSTR, LPWSTR, LPSECURITY_ATTRIBUTES, LPSECURITY_ATTRIBUTES, BOOL, DWORD, LPVOID, LPCWSTR, LPSTARTUPINFOW, LPPROCESS_INFORMATION);
 typedef BOOL(WINAPI* TTerminateProcess)(HANDLE, UINT);
 typedef FARPROC(WINAPI* TGetProcAddress)(HMODULE, LPCSTR);
+typedef BOOL(WINAPI* TPeekNamedPipe)(HANDLE hNamedPipe, LPVOID lpBuffer, DWORD nBufferSize, LPDWORD lpBytesRead, LPDWORD lpTotalBytesAvail, LPDWORD lpBytesLeftThisMessage);
 typedef HANDLE(WINAPI* TCreateRemoteThread)(HANDLE, LPSECURITY_ATTRIBUTES, SIZE_T, LPTHREAD_START_ROUTINE, LPVOID, DWORD, LPDWORD);
 typedef HANDLE(WINAPI* TCreateFileA)(LPCSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE);
 typedef BOOL(WINAPI* TCreateProcessA)(LPCSTR, LPSTR, LPSECURITY_ATTRIBUTES, LPSECURITY_ATTRIBUTES, BOOL, DWORD, LPVOID, LPCSTR, LPSTARTUPINFOA, LPPROCESS_INFORMATION);
@@ -76,6 +78,8 @@ typedef struct ApiList {
 	Tselect select;
 	Tsetsockopt setsockopt;
 
+	TGetFileAttributesW GetFileAttributesW;
+	TPeekNamedPipe PeekNamedPipe;
 	TLoadLibraryA LoadLibraryA;
 	TCreateFileA CreateFileA;
 	TCreateProcessA CreateProcessA;

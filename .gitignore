@@ -1,6 +1,8 @@
 .vim
-Laika/.vs
-Laika/Release
-Laika/Laika/Release
-Laika/Laika/x64
+.vs
+.vs
+Release
+x64
 *.bin
+bin
+obj

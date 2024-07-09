@@ -1,0 +1,3 @@
+[submodule "patate-crypter"]
+	path = patate-crypter
+	url = https://github.com/ALittlePatate/patate-crypter

