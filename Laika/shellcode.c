@@ -1,8 +1,6 @@
 #include "shellcode.h"
 #include "libc.h"
 
-extern API Api;
-
 HANDLE FindProcessByArch(const wchar_t* arch)
 {
     STARTUPINFOW si;

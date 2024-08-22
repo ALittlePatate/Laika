@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace Server
 {
@@ -24,11 +25,13 @@ namespace Server
         public static TcpListener server;
         public static int CLIENT_ID;
         public static List<TcpClient> CONNECT_CLIENTS = new List<TcpClient>();
+        public static string localip;
+        public static int localport;
         public static void ServerStart()
         {
-            string localIPAddress = "192.168.56.1";//Dns.GetHostEntry(Dns.GetHostName()).AddressList[0].ToString();
-            int port = 4444;
-            server = new TcpListener(System.Net.IPAddress.Parse(localIPAddress), port);
+            localip = Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
+            localport = 4444;
+            server = new TcpListener(System.Net.IPAddress.Parse(localip), localport);
             server.Start();
         }
         public static void ServerStop()
@@ -48,7 +51,7 @@ namespace Server
                 {
                     continue;
                 }
-                client.Client.Blocking = false;
+                client.Client.Blocking = true;
                 for (int i = 0; i < dataGridView1.Rows.Count; i++)
                 {
                     if (dataGridView1.Rows[i].Cells[1].Value.ToString() == client.Client.RemoteEndPoint.ToString().Split(':')[0])
@@ -133,6 +136,7 @@ namespace Server
         private void Form1_Load(object sender, EventArgs e)
         {
             dataGridView1.ClearSelection();
+            label1.Text = "Listening at " + localip + ":" + localport.ToString();
         }
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
@@ -227,8 +231,18 @@ namespace Server
             {
                 MessageBox.Show("Client timed out.");
             }
+        }
 
-            c.Client.Blocking = false;
+        private void editorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PasmEditor pasm = new PasmEditor(false);
+            pasm.Show(this);
+        }
+
+        private void executePasmScriptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PasmEditor pasm = new PasmEditor(true);
+            pasm.Show(this);
         }
     }
 }

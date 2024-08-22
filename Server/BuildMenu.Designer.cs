@@ -53,10 +53,20 @@
             this.button3 = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label9 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.Selected_apis = new System.Windows.Forms.ListBox();
+            this.searchBox = new System.Windows.Forms.TextBox();
+            this.searchResultsListBox = new System.Windows.Forms.ListBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.contextMenuStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
             // Hosts
@@ -241,7 +251,7 @@
             // button2
             // 
             this.button2.Enabled = false;
-            this.button2.Location = new System.Drawing.Point(81, 415);
+            this.button2.Location = new System.Drawing.Point(257, 415);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(213, 38);
             this.button2.TabIndex = 18;
@@ -293,11 +303,94 @@
             this.label9.Size = new System.Drawing.Size(325, 2);
             this.label9.TabIndex = 23;
             // 
+            // label10
+            // 
+            this.label10.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.label10.Location = new System.Drawing.Point(363, 15);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(2, 394);
+            this.label10.TabIndex = 24;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(371, 9);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(64, 13);
+            this.label11.TabIndex = 25;
+            this.label11.Text = "pasm config";
+            // 
+            // label12
+            // 
+            this.label12.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.label12.Location = new System.Drawing.Point(437, 15);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(254, 2);
+            this.label12.TabIndex = 26;
+            // 
+            // Selected_apis
+            // 
+            this.Selected_apis.FormattingEnabled = true;
+            this.Selected_apis.Location = new System.Drawing.Point(374, 41);
+            this.Selected_apis.Name = "Selected_apis";
+            this.Selected_apis.Size = new System.Drawing.Size(173, 368);
+            this.Selected_apis.TabIndex = 27;
+            this.Selected_apis.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Selected_apis_MouseDown);
+            // 
+            // searchBox
+            // 
+            this.searchBox.Location = new System.Drawing.Point(553, 28);
+            this.searchBox.Name = "searchBox";
+            this.searchBox.Size = new System.Drawing.Size(138, 20);
+            this.searchBox.TabIndex = 28;
+            this.searchBox.Text = "Search for an API";
+            this.searchBox.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
+            // 
+            // searchResultsListBox
+            // 
+            this.searchResultsListBox.FormattingEnabled = true;
+            this.searchResultsListBox.Location = new System.Drawing.Point(553, 54);
+            this.searchResultsListBox.Name = "searchResultsListBox";
+            this.searchResultsListBox.Size = new System.Drawing.Size(138, 355);
+            this.searchResultsListBox.TabIndex = 29;
+            this.searchResultsListBox.SelectedIndexChanged += new System.EventHandler(this.SearchResultsListBox_SelectedIndexChanged);
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(371, 26);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(127, 13);
+            this.label13.TabIndex = 30;
+            this.label13.Text = "Selected Windows APIs :";
+            // 
+            // contextMenuStrip2
+            // 
+            this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem1});
+            this.contextMenuStrip2.Name = "contextMenuStrip1";
+            this.contextMenuStrip2.Size = new System.Drawing.Size(108, 26);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Image = global::Server.Properties.Resources.delete;
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
+            this.toolStripMenuItem1.Text = "Delete";
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            // 
             // BuildMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(355, 465);
+            this.ClientSize = new System.Drawing.Size(703, 465);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this.searchResultsListBox);
+            this.Controls.Add(this.searchBox);
+            this.Controls.Add(this.Selected_apis);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.label11);
+            this.Controls.Add(this.label10);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.button3);
@@ -320,7 +413,8 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.Hosts);
-            this.MinimumSize = new System.Drawing.Size(371, 430);
+            this.MaximumSize = new System.Drawing.Size(719, 504);
+            this.MinimumSize = new System.Drawing.Size(719, 504);
             this.Name = "BuildMenu";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Build a payload";
@@ -329,6 +423,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.contextMenuStrip2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -360,5 +455,14 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.ListBox Selected_apis;
+        private System.Windows.Forms.TextBox searchBox;
+        private System.Windows.Forms.ListBox searchResultsListBox;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip2;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
     }
 }

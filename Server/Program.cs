@@ -105,7 +105,6 @@ namespace Server
             finally
             {
                 ClearSocketData(c);
-                c.Client.Blocking = false;
                 if (shell != null)
                 {
                     shell.Close();
@@ -123,7 +122,6 @@ namespace Server
                 byte[] message = Encoding.UTF8.GetBytes(Utils.CAESAR("exit\n"));
                 stream.Write(message, 0, message.Length);
                 ClearSocketData(c);
-                c.Client.Blocking = false;
             }
             catch { }
             OPENED = false;

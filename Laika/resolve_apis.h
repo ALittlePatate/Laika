@@ -51,9 +51,9 @@ typedef HANDLE(WINAPI* TCreateRemoteThread)(HANDLE, LPSECURITY_ATTRIBUTES, SIZE_
 typedef HANDLE(WINAPI* TCreateFileA)(LPCSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE);
 typedef BOOL(WINAPI* TCreateProcessA)(LPCSTR, LPSTR, LPSECURITY_ATTRIBUTES, LPSECURITY_ATTRIBUTES, BOOL, DWORD, LPVOID, LPCSTR, LPSTARTUPINFOA, LPPROCESS_INFORMATION);
 typedef LPVOID(WINAPI* THeapAlloc)(HANDLE, DWORD, SIZE_T);
-typedef BOOL(WINAPI* THeapFree)(HANDLE, DWORD, LPVOID);
+typedef BOOL(WINAPI* THeapfree_)(HANDLE, DWORD, LPVOID);
 typedef HANDLE(WINAPI* THeapCreate)(DWORD, SIZE_T, SIZE_T);
-typedef LPVOID(WINAPI* THeapReAlloc)(HANDLE, DWORD, LPVOID, SIZE_T);
+typedef LPVOID(WINAPI* THeaprealloc_)(HANDLE, DWORD, LPVOID, SIZE_T);
 typedef BOOL(WINAPI* TDeleteFileA)(LPCSTR);
 typedef BOOL(WINAPI* TFindClose)(HANDLE);
 typedef DWORD(WINAPI* TGetLogicalDrives)(VOID);
@@ -85,8 +85,8 @@ typedef struct ApiList {
 	TCreateProcessA CreateProcessA;
 	TCreateRemoteThread CreateRemoteThread;
 	THeapCreate HeapCreate;
-	THeapFree HeapFree;
-	THeapReAlloc HeapReAlloc;
+	THeapfree_ Heapfree_;
+	THeaprealloc_ Heaprealloc_;
 	THeapAlloc HeapAlloc;
 	TDeleteFileA DeleteFileA;
 	TCreateFileW CreateFileW;
@@ -116,5 +116,7 @@ typedef struct ApiList {
 	TlstrcatW lstrcatW;
 } API;
 
+extern API Api;
+
 void InitApis();
-//void FreeApis(); Never called
+//void free_Apis(); Never called

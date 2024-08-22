@@ -19,6 +19,16 @@ char* strcpy_(char* dest, const char* src) {
 	return dest;
 }
 
+char* strncpy_(char* dest, const char* src, size_t n) {
+    size_t i = 0;
+
+    for (; i < n && src[i] != 0; i++)
+        dest[i] = src[i];
+    for (; i < n; i++)
+        dest[i] = 0;
+    return dest;
+}
+
 void *memset_(void* a, int val, size_t size) {
 	if (a == NULL)
 		return NULL;
@@ -166,6 +176,56 @@ wchar_t* wcsstr_(const wchar_t* haystack, const wchar_t* needle) {
         haystack++;
     }
     return NULL;
+}
+
+char** split_lines(const char* fileContent, int* lineCount) {
+    int lines = 0;
+    const char* start = fileContent;
+    const char* end = fileContent;
+    char** result = NULL;
+
+    while (*end != '\0') {
+        if (*end == '\n') {
+            int lineLength = end - start + 1;
+
+            if (result == NULL) {
+                result = Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, sizeof(char*) * (lines + 1));
+            }
+            else {
+                result = Api.Heaprealloc_(_crt_heap, HEAP_ZERO_MEMORY, result, sizeof(char*) * (lines + 1));
+            }
+
+            result[lines] = Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, lineLength + 1);
+            strncpy_(result[lines], start, lineLength);
+            result[lines][lineLength] = '\0';
+            lines++;
+
+            if (*end == '\r' && *(end + 1) == '\n') {
+                end++;
+            }
+            else if (*end == '\n' && *(end + 1) == '\r') {
+                end++;
+            }
+
+            start = end + 1;
+        }
+        end++;
+    }
+    if (start != end) {
+        int lineLength = end - start;
+        if (result == NULL) {
+            result = Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, sizeof(char*) * (lines + 1));
+        }
+        else {
+            result = Api.Heaprealloc_(_crt_heap, HEAP_ZERO_MEMORY, result, sizeof(char*) * (lines + 1));
+        }
+        result[lines] = Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, lineLength + 1);
+        strncpy_(result[lines], start, lineLength);
+        result[lines][lineLength] = '\0';  // Null-terminate the line
+        lines++;
+    }
+    *lineCount = lines;
+    return result;
 }
 
 void* my_GetProcAddress(HMODULE hModule, LPCSTR lpProcName) {

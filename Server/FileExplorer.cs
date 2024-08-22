@@ -23,7 +23,7 @@ namespace Server
         }
 
         public static int ITEM_ID = 0;
-        public static int CLIENT_ID = 0;
+        public static int CLIENT_ID = -1;
         public static string PATH = "";
         public static bool OPENED = false;
 
@@ -83,8 +83,6 @@ namespace Server
                         dataGridView2.Rows[idx].Tag += "/f";
                     }
                 }
-
-                c.Client.Blocking = false;
             } catch
             {
                 CLIENT_ID = -1;
@@ -114,7 +112,6 @@ namespace Server
                 int bytesRead;
                 bytesRead = stream.Read(buffer, 0, buffer.Length);
                 receivedData = System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                c.Client.Blocking = false;
             } catch
             {
                 CLIENT_ID = -1;
@@ -194,8 +191,6 @@ namespace Server
                 stream.Write(Message, 0, Message.Length);
                 Message = System.Text.Encoding.UTF8.GetBytes(Utils.CAESAR(PATH + file));
                 stream.Write(Message, 0, Message.Length);
-
-                c.Client.Blocking = false;
             }
             catch
             {
@@ -259,6 +254,7 @@ namespace Server
 
         private void FileExplorer_FormClosing(object sender, FormClosingEventArgs e)
         {
+            CLIENT_ID = -1;
             OPENED = false;
         }
 
@@ -288,8 +284,6 @@ namespace Server
                 stream.Write(Message, 0, Message.Length);
                 Message = System.Text.Encoding.UTF8.GetBytes(Utils.CAESAR(PATH + file));
                 stream.Write(Message, 0, Message.Length);
-
-                c.Client.Blocking = false;
             }
             catch
             {
@@ -328,8 +322,6 @@ namespace Server
                 stream.Write(Message, 0, Message.Length);
                 byte[] fileContent = File.ReadAllBytes(filePath);
                 stream.Write(fileContent, 0, fileContent.Length);
-
-                c.Client.Blocking = false;
             }
             catch
             {
@@ -455,8 +447,6 @@ namespace Server
                 {
                     DownloadFile(PATH + file, stream, c);
                 }
-
-                c.Client.Blocking = false;
             }
             catch
             {

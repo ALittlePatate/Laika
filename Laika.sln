@@ -4,8 +4,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.1.32407.343
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Laika", "Laika\Laika.vcxproj", "{6C8DD8FE-E960-43B4-B757-EFFA9FE6BB00}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6365D58B-DF8C-46B2-A93D-78D988A34FE8} = {6365D58B-DF8C-46B2-A93D-78D988A34FE8}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{ECBAF9B2-2988-480B-973E-50A6BDC7016E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pasm", "pasm\msvc\pasm.vcxproj", "{6365D58B-DF8C-46B2-A93D-78D988A34FE8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{ECBAF9B2-2988-480B-973E-50A6BDC7016E} = {ECBAF9B2-2988-480B-973E-50A6BDC7016E}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +49,18 @@ Global
 		{ECBAF9B2-2988-480B-973E-50A6BDC7016E}.Release|x64.Build.0 = Release|Any CPU
 		{ECBAF9B2-2988-480B-973E-50A6BDC7016E}.Release|x86.ActiveCfg = Release|Any CPU
 		{ECBAF9B2-2988-480B-973E-50A6BDC7016E}.Release|x86.Build.0 = Release|Any CPU
+		{6365D58B-DF8C-46B2-A93D-78D988A34FE8}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{6365D58B-DF8C-46B2-A93D-78D988A34FE8}.Debug|Any CPU.Build.0 = Debug|x64
+		{6365D58B-DF8C-46B2-A93D-78D988A34FE8}.Debug|x64.ActiveCfg = Debug|x64
+		{6365D58B-DF8C-46B2-A93D-78D988A34FE8}.Debug|x64.Build.0 = Debug|x64
+		{6365D58B-DF8C-46B2-A93D-78D988A34FE8}.Debug|x86.ActiveCfg = Debug|Win32
+		{6365D58B-DF8C-46B2-A93D-78D988A34FE8}.Debug|x86.Build.0 = Debug|Win32
+		{6365D58B-DF8C-46B2-A93D-78D988A34FE8}.Release|Any CPU.ActiveCfg = Release|x64
+		{6365D58B-DF8C-46B2-A93D-78D988A34FE8}.Release|Any CPU.Build.0 = Release|x64
+		{6365D58B-DF8C-46B2-A93D-78D988A34FE8}.Release|x64.ActiveCfg = Release|x64
+		{6365D58B-DF8C-46B2-A93D-78D988A34FE8}.Release|x64.Build.0 = Release|x64
+		{6365D58B-DF8C-46B2-A93D-78D988A34FE8}.Release|x86.ActiveCfg = Release|Win32
+		{6365D58B-DF8C-46B2-A93D-78D988A34FE8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
