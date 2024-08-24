@@ -204,7 +204,13 @@ namespace Server
 #endif
 void api_{functionName}(void) {{
 #ifdef _WIN32
-    f{api.function_name} p{api.function_name} = GetApi(L""{api.dll_name}"", ""{api.function_name}"");
+    char api[] = ""{Utils.CAESAR(api.function_name)}"";
+    f{api.function_name} p{api.function_name} = GetApi(L""{api.dll_name}"", PCAESAR_DECRYPT(api));
+    if (p{api.function_name} == NULL) {{
+        state->STACK_IDX -= {api.arguments.Count};
+        {(returnsVoid ? string.Empty : "state->registers->eax = 1;")}
+        return;
+    }}
 {functionBody.ToString()}    {functionCall}
 #else
     state->STACK_IDX -= {api.arguments.Count};
