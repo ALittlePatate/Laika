@@ -29,7 +29,7 @@ namespace Server
         public static int localport;
         public static void ServerStart()
         {
-            localip = "192.168.1.20";//Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
+            localip = Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
             localport = 4444;
             server = new TcpListener(System.Net.IPAddress.Parse(localip), localport);
             server.Start();
