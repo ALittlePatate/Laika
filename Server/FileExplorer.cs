@@ -123,6 +123,12 @@ namespace Server
                 comboBox1.Items.Add(l);
             }
             comboBox1.SelectedIndex = 0;
+            char d = comboBox1.Items.IndexOf(comboBox1.SelectedIndex).ToString()[0];
+            while ((d == 'A' || d == 'B') && (comboBox1.SelectedIndex + 1) < comboBox1.Items.Count)
+            {
+                comboBox1.SelectedIndex++;
+                d = comboBox1.Items.IndexOf(comboBox1.SelectedIndex).ToString()[0];
+            }
             PATH = comboBox1.Text + ":/";
             textBox1.Text = PATH;
 

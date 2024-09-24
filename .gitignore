@@ -4,6 +4,7 @@
 Release
 x64
 *.bin
+*.o
 bin
 obj
 packages

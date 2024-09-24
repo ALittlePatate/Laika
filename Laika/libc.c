@@ -1,25 +1,12 @@
 #include "libc.h"
 #include "resolve_apis.h"
 
-size_t strlen_(char* src) {
-	size_t s = 0;
+extern LAIKA_NOOPT size_t wchar_to_utf8(wchar_t wc, unsigned char* utf8);
 
-	if (src == NULL)
-		return 0;
-	for (; src[s] != 0; s++);
-	return s;
-}
-
-char* strcpy_(char* dest, const char* src) {
-	size_t i = 0;
-
-	for (; src[i] != 0; i++)
-		dest[i] = src[i];
-	dest[i] = 0;
-	return dest;
-}
-
-char* strncpy_(char* dest, const char* src, size_t n) {
+#ifdef _MSC_VER
+#pragma optimize("", off)
+#endif
+LAIKA_NOOPT char* strncpy_(char* dest, const char* src, size_t n) {
     size_t i = 0;
 
     for (; i < n && src[i] != 0; i++)
@@ -29,15 +16,58 @@ char* strncpy_(char* dest, const char* src, size_t n) {
     return dest;
 }
 
-void *memset_(void* a, int val, size_t size) {
-	if (a == NULL)
-		return NULL;
-	for (size_t i = 0; i < size; i++)
-		((char*)a)[i] = (char)val;
-	return a;
+LAIKA_NOOPT void* memset_(void* a, int val, size_t size) {
+    if (a == NULL)
+        return NULL;
+    for (size_t i = 0; i < size; i++)
+        ((char*)a)[i] = (char)val;
+    return a;
 }
 
-int strncmp_(char* a, char* b, size_t size) {
+LAIKA_NOOPT size_t wcstombs_(char* dest, const wchar_t* src, size_t n) {
+    size_t count = 0;
+    unsigned char utf8[4];
+
+    while (*src != L'\0' && count < n) {
+        size_t len = wchar_to_utf8(*src, utf8);
+        if (len == 0 || count + len > n)
+            return (size_t)-1;
+        if (dest != NULL) {
+            for (size_t i = 0; i < len; i++)
+                dest[count++] = (char)utf8[i];
+        }
+        else
+            count += len;
+        src++;
+    }
+    if (dest != NULL && count < n)
+        dest[count] = '\0';
+    return count;
+}
+
+#ifdef _MSC_VER
+#pragma optimize("", on)
+#endif
+
+LAIKA_NOOPT char* strcpy_(char* dest, const char* src) {
+    size_t i = 0;
+
+    for (; src[i] != 0; i++)
+        dest[i] = src[i];
+    dest[i] = 0;
+    return dest;
+}
+
+LAIKA_NOOPT size_t strlen_(char* src) {
+	size_t s = 0;
+
+	if (src == NULL)
+		return 0;
+	for (; src[s] != 0; s++);
+	return s;
+}
+
+LAIKA_NOOPT int strncmp_(char* a, char* b, size_t size) {
 	if (a == NULL || b == NULL)
 		return -1;
 	for (size_t i = 0; a[i] != 0 && b[i] != 0 && i < size; i++)
@@ -46,7 +76,7 @@ int strncmp_(char* a, char* b, size_t size) {
 	return 0;
 }
 
-size_t utf8_char_length(unsigned char c) {
+LAIKA_NOOPT size_t utf8_char_length(unsigned char c) {
     if ((c & 0x80) == 0) return 1;       // 1-byte character: 0xxxxxxx
     if ((c & 0xE0) == 0xC0) return 2;    // 2-byte character: 110xxxxx
     if ((c & 0xF0) == 0xE0) return 3;    // 3-byte character: 1110xxxx
@@ -54,7 +84,7 @@ size_t utf8_char_length(unsigned char c) {
     return 0;                            // Invalid UTF-8
 }
 
-wchar_t utf8_to_wchar(const unsigned char* mbstr, size_t* length) {
+LAIKA_NOOPT wchar_t utf8_to_wchar(const unsigned char* mbstr, size_t* length) {
     wchar_t wc = 0;
     size_t len = utf8_char_length(mbstr[0]);
     *length = len;
@@ -79,7 +109,7 @@ wchar_t utf8_to_wchar(const unsigned char* mbstr, size_t* length) {
     return wc;
 }
 
-size_t mbstowcs_(wchar_t* dest, const char* src, size_t n) {
+LAIKA_NOOPT size_t mbstowcs_(wchar_t* dest, const char* src, size_t n) {
     size_t count = 0;
     const unsigned char* mbstr = (const unsigned char*)src;
 
@@ -98,7 +128,7 @@ size_t mbstowcs_(wchar_t* dest, const char* src, size_t n) {
     return count;
 }
 
-size_t wchar_to_utf8(wchar_t wc, unsigned char* utf8) {
+LAIKA_NOOPT size_t wchar_to_utf8(wchar_t wc, unsigned char* utf8) {
     if (wc <= 0x7F) {
         utf8[0] = (unsigned char)wc;
         return 1;
@@ -124,28 +154,7 @@ size_t wchar_to_utf8(wchar_t wc, unsigned char* utf8) {
     return 0; // Invalid wide character
 }
 
-size_t wcstombs_(char* dest, const wchar_t* src, size_t n) {
-    size_t count = 0;
-    unsigned char utf8[4];
-
-    while (*src != L'\0' && count < n) {
-        size_t len = wchar_to_utf8(*src, utf8);
-        if (len == 0 || count + len > n)
-            return (size_t)-1;
-        if (dest != NULL) {
-            for (size_t i = 0; i < len; i++)
-                dest[count++] = (char)utf8[i];
-        }
-        else 
-            count += len;
-        src++;
-    }
-    if (dest != NULL && count < n)
-        dest[count] = '\0';
-    return count;
-}
-
-int wcscmp_(const wchar_t* s1, const wchar_t* s2) {
+LAIKA_NOOPT int wcscmp_(const wchar_t* s1, const wchar_t* s2) {
     while (*s1 != L'\0' && *s2 != L'\0') {
         if (*s1 != *s2)
             return (*s1 < *s2) ? -1 : 1;
@@ -160,7 +169,7 @@ int wcscmp_(const wchar_t* s1, const wchar_t* s2) {
         return 1;
 }
 
-wchar_t* wcsstr_(const wchar_t* haystack, const wchar_t* needle) {
+LAIKA_NOOPT wchar_t* wcsstr_(const wchar_t* haystack, const wchar_t* needle) {
     if (!*needle)
         return (wchar_t*)haystack;
     while (*haystack) {
@@ -176,6 +185,51 @@ wchar_t* wcsstr_(const wchar_t* haystack, const wchar_t* needle) {
         haystack++;
     }
     return NULL;
+}
+
+LAIKA_NOOPT wchar_t* wcscat_(wchar_t* dest, const wchar_t* src) {
+    wchar_t* d = dest;
+    while (*d != L'\0') {
+        d++;
+    }
+    const wchar_t* s = src;
+    while (*s != L'\0') {
+        *d = *s;
+        d++;
+        s++;
+    }
+    *d = L'\0';
+    return dest;
+}
+
+LAIKA_NOOPT wchar_t* wcscpy_(wchar_t* dest, const wchar_t* src) {
+    wchar_t* d = dest;
+    const wchar_t* s = src;
+    while ((*d++ = *s++) != L'\0') {
+    }
+
+    return dest;
+}
+
+LAIKA_NOOPT int strcmp_(const char* s1, const char* s2) {
+    while (*s1 && (*s1 == *s2)) {
+        s1++;
+        s2++;
+    }
+    return (*(unsigned char*)s1 - *(unsigned char*)s2);
+}
+
+LAIKA_NOOPT char* strcat_(char* dest, const char* src) {
+    char* d = dest;
+
+    while (*d != '\0') {
+        d++;
+    }
+    while (*src != '\0') {
+        *d++ = *src++;
+    }
+    *d = '\0';
+    return dest;
 }
 
 char** split_lines(const char* fileContent, int* lineCount) {
@@ -250,7 +304,7 @@ void* my_GetProcAddress(HMODULE hModule, LPCSTR lpProcName) {
 
 	for (DWORD i = 0; i < exportDir->NumberOfNames; i++) {
 		const char* functionName = (const char*)((BYTE*)hModule + nameRVAs[i]);
-		if (strcmp(functionName, lpProcName) == 0) {
+		if (strcmp_(functionName, lpProcName) == 0) {
 			DWORD funcRVA = addrRVAs[ordinals[i]];
 			void* funcPtr = (void*)((BYTE*)hModule + funcRVA);
 			return funcPtr;
@@ -259,8 +313,38 @@ void* my_GetProcAddress(HMODULE hModule, LPCSTR lpProcName) {
 	return NULL;
 }
 
+#ifdef _M_X64
+unsigned long long __readgsqword_(unsigned long long offset) {
+#ifndef _MSC_VER
+    unsigned long long value;
+    __asm__ __volatile__(
+        "movq %%gs:%1, %0"
+        : "=r" (value)
+        : "m" (*(unsigned long long*)(offset))
+    );
+    return value;
+#else
+	return __readgsqword(offset);
+#endif
+}
+#else
+unsigned long __readfsdword_(unsigned long offset) {
+#ifndef _MSC_VER
+    unsigned long value;
+    __asm__ __volatile__(
+        "movl %%fs:%1, %0"
+        : "=r" (value)
+        : "m" (*(unsigned long*)(offset))
+    );
+    return value;
+#else
+    return __readfsdword(offset);
+#endif
+}
+#endif
+
 void* get_ntfunction(const char* func) {
-	PTEB tebPtr = GetTEB();
+    PTEB_ tebPtr = GetTEB();
 
 	PPEB_LDR_DATA ldrData = tebPtr->ProcessEnvironmentBlock->Ldr;
 	PLIST_ENTRY moduleList = &(ldrData->InMemoryOrderModuleList);

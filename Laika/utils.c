@@ -6,7 +6,7 @@ extern API Api;
 
 #define KEY 5
 char* CAESAR(char* in) {
-	for (size_t i = 0; i < strlen(in); i++) {
+	for (size_t i = 0; i < strlen_(in); i++) {
 		in[i] += KEY;
 	}
 	
@@ -14,7 +14,7 @@ char* CAESAR(char* in) {
 }
 
 char* CAESAR_DECRYPT(char* in) {
-	for (size_t i = 0; i < strlen(in); i++) {
+	for (size_t i = 0; i < strlen_(in); i++) {
 		in[i] -= KEY;
 	}
 
@@ -23,7 +23,7 @@ char* CAESAR_DECRYPT(char* in) {
 
 LPCWSTR ConvertCharToWChar(const char* str)
 {
-	int len = strlen(str) + 1;
+	int len = strlen_(str) + 1;
 	int wlen = Api.MultiByteToWideChar(CP_ACP, 0, str, len, NULL, 0);
 	LPWSTR wstr = (LPWSTR)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, wlen * sizeof(WCHAR));
 	Api.MultiByteToWideChar(CP_ACP, 0, str, len, wstr, wlen);

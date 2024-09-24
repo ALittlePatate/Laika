@@ -1,6 +1,7 @@
 # Laika
 
 A very simple RAT I created for fun.<br>
+You need mingw32 and Visual Studio 2022's clang to compile the agent btw.<br>
 
 # Agent
 

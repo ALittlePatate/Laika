@@ -1,20 +1,21 @@
 #pragma once
 #include <Windows.h>
-#include <shlobj_core.h>
+//#include <shlobj_core.h>
 #include <TlHelp32.h>
 #include <wininet.h>
-#include <winternl.h>
+//#include <winternl.h>
 #include <winsock.h>
 #include "utils.h"
+#include "libc.h"
 
 #ifdef _M_X64
-	#define GetTEB() ((PTEB)__readgsqword(FIELD_OFFSET(NT_TIB, Self)))
+	#define GetTEB() ((PTEB_)__readgsqword_(FIELD_OFFSET(NT_TIB, Self)))
 #else
-	#define GetTEB() ((PTEB)__readfsdword(FIELD_OFFSET(NT_TIB, Self)))
+	#define GetTEB() ((PTEB_)__readfsdword_(FIELD_OFFSET(NT_TIB, Self)))
 #endif
 
-typedef NTSTATUS(NTAPI* TRtlInitUnicodeString)(PUNICODE_STRING DestinationString, PCWSTR SourceString);
-typedef NTSTATUS(NTAPI* TLdrLoadDll)(PWCHAR, ULONG, PUNICODE_STRING, PHANDLE);
+typedef NTSTATUS(__stdcall* TRtlInitUnicodeString)(PUNICODE_STRING DestinationString, PCWSTR SourceString);
+typedef NTSTATUS(__stdcall* TLdrLoadDll)(PWCHAR, ULONG, PUNICODE_STRING, PHANDLE);
 typedef HMODULE(WINAPI* TLoadLibraryA)(LPCSTR);
 
 typedef BOOL(WINAPI* Tconnect)(SOCKET, const SOCKADDR*, int);

