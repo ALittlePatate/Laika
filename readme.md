@@ -46,6 +46,11 @@ You need mingw32 and Visual Studio 2022's clang to compile the agent btw.<br>
 * Plugins support
 </details>
 
+# Compile
+You need `make` and the `LLVM` toolchain on Windows to be able to compile.<br>
+Then compile the server using VS2022 and build the payload from Laika's integrated build menu.
+
+
 # Screenshots
 ![Alt text](Screenshots/main_menu.png "main menu")
 ![Alt text](Screenshots/builder.png "builder")
