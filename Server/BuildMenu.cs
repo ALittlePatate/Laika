@@ -353,7 +353,7 @@ void api_{functionName}(void) {{
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
             startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
             startInfo.FileName = "cmd";
-            startInfo.Arguments = "/C cd ../Laika/ && mingw32-make fclean && mingw32-make";
+            startInfo.Arguments = "/C cd ../Laika/ && make fclean && make";
             startInfo.RedirectStandardOutput = true;
             startInfo.UseShellExecute = false;
             startInfo.CreateNoWindow = true;
